@@ -5,8 +5,10 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/observable/interval';
+import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/startWith';
 
 import { betTokenInterface } from './bet-token.config';
 
@@ -176,5 +178,27 @@ export class BetTokenService {
     return Observable
       .fromPromise(this.getContract().methods.bets(bet).call())
       .map(_ => ({id: bet, ..._}));
+  }
+
+  private checkData(...type: ('bet' | 'transaction')[]): Observable<any> {
+    return Observable.interval(2000).startWith(undefined);
+  }
+
+  getMyBetsChanges(): Observable<Bet[]> {
+    return this.checkData('bet')
+      .mergeMap(() => this.getMyBets())
+      .distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b));
+  }
+
+  getBalanceChanges(): Observable<number> {
+    return this.checkData('transaction')
+      .mergeMap(() => this.getBalance())
+      .distinctUntilChanged();
+  }
+
+  getDebtChanges(): Observable<number> {
+    return this.checkData('bet', 'transaction')
+      .mergeMap(() => this.getDebt())
+      .distinctUntilChanged();
   }
 }
