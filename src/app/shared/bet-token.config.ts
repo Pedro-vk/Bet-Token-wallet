@@ -6,8 +6,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: '',
-        type: 'string',
-        value: 'GinésCoinTest'
+        type: 'string'
       }
     ],
     payable: false,
@@ -41,7 +40,12 @@ export const betTokenInterface = [
     constant: false,
     inputs: [],
     name: 'dripToMe',
-    outputs: [],
+    outputs: [
+      {
+        name: 'success',
+        type: 'bool'
+      }
+    ],
     payable: false,
     stateMutability: 'nonpayable',
     type: 'function'
@@ -53,8 +57,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: '',
-        type: 'uint256',
-        value: '1000'
+        type: 'uint256'
       }
     ],
     payable: false,
@@ -71,6 +74,10 @@ export const betTokenInterface = [
     ],
     name: 'bets',
     outputs: [
+      {
+        name: 'id',
+        type: 'uint256'
+      },
       {
         name: 'from',
         type: 'address'
@@ -93,6 +100,10 @@ export const betTokenInterface = [
       },
       {
         name: 'accepted',
+        type: 'bool'
+      },
+      {
+        name: 'opened',
         type: 'bool'
       }
     ],
@@ -139,8 +150,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: 'balance',
-        type: 'uint256',
-        value: '0'
+        type: 'uint256'
       }
     ],
     payable: false,
@@ -154,8 +164,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: '',
-        type: 'uint8',
-        value: '0'
+        type: 'uint8'
       }
     ],
     payable: false,
@@ -169,8 +178,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: '',
-        type: 'string',
-        value: '1.0'
+        type: 'string'
       }
     ],
     payable: false,
@@ -204,7 +212,12 @@ export const betTokenInterface = [
       }
     ],
     name: 'drip',
-    outputs: [],
+    outputs: [
+      {
+        name: 'success',
+        type: 'bool'
+      }
+    ],
     payable: false,
     stateMutability: 'nonpayable',
     type: 'function'
@@ -221,8 +234,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: 'balance',
-        type: 'uint256',
-        value: '0'
+        type: 'uint256'
       }
     ],
     payable: false,
@@ -246,12 +258,25 @@ export const betTokenInterface = [
   {
     constant: true,
     inputs: [],
+    name: 'betsSize',
+    outputs: [
+      {
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
     name: 'owner',
     outputs: [
       {
         name: '',
-        type: 'address',
-        value: '0x57d2d793efd81cb76af623249920cc5bd35ebba9'
+        type: 'address'
       }
     ],
     payable: false,
@@ -265,8 +290,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: 'debt',
-        type: 'uint256',
-        value: '0'
+        type: 'uint256'
       }
     ],
     payable: false,
@@ -280,8 +304,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: '',
-        type: 'string',
-        value: 'GNST'
+        type: 'string'
       }
     ],
     payable: false,
@@ -359,8 +382,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: 'debt',
-        type: 'uint256',
-        value: '0'
+        type: 'uint256'
       }
     ],
     payable: false,
@@ -383,8 +405,7 @@ export const betTokenInterface = [
     outputs: [
       {
         name: 'remaining',
-        type: 'uint256',
-        value: '0'
+        type: 'uint256'
       }
     ],
     payable: false,
@@ -400,8 +421,7 @@ export const betTokenInterface = [
         typeShort: 'uint',
         bits: '256',
         displayName: '&thinsp;<span class=\'punctuation\'>_</span>&thinsp;initial Amount',
-        template: 'elements_input_uint',
-        value: '1000'
+        template: 'elements_input_uint'
       },
       {
         name: '_tokenName',
@@ -410,8 +430,7 @@ export const betTokenInterface = [
         typeShort: 'string',
         bits: '',
         displayName: '&thinsp;<span class=\'punctuation\'>_</span>&thinsp;token Name',
-        template: 'elements_input_string',
-        value: 'GinésCoinTest'
+        template: 'elements_input_string'
       },
       {
         name: '_decimalUnits',
@@ -420,8 +439,7 @@ export const betTokenInterface = [
         typeShort: 'uint',
         bits: '8',
         displayName: '&thinsp;<span class=\'punctuation\'>_</span>&thinsp;decimal Units',
-        template: 'elements_input_uint',
-        value: '0'
+        template: 'elements_input_uint'
       },
       {
         name: '_tokenSymbol',
@@ -430,13 +448,72 @@ export const betTokenInterface = [
         typeShort: 'string',
         bits: '',
         displayName: '&thinsp;<span class=\'punctuation\'>_</span>&thinsp;token Symbol',
-        template: 'elements_input_string',
-        value: 'GNST'
+        template: 'elements_input_string'
       }
     ],
     payable: false,
     stateMutability: 'nonpayable',
     type: 'constructor'
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        name: '_bet',
+        type: 'uint256'
+      }
+    ],
+    name: 'NewBet',
+    type: 'event'
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        name: '_bet',
+        type: 'uint256'
+      }
+    ],
+    name: 'UpdateBet',
+    type: 'event'
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        name: '_bet',
+        type: 'uint256'
+      }
+    ],
+    name: 'AcceptBet',
+    type: 'event'
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        name: '_bet',
+        type: 'uint256'
+      }
+    ],
+    name: 'CloseBet',
+    type: 'event'
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        name: '_bet',
+        type: 'uint256'
+      }
+    ],
+    name: 'PayBet',
+    type: 'event'
   },
   {
     anonymous: false,

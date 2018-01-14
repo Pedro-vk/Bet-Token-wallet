@@ -20,7 +20,7 @@ import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
   ],
   providers: [
     PROVIDERS,
-    {provide: BET_TOKEN_ADDRESS, useValue: '0x4799e0DE6172B86647E85F842DD399937FB9ABfE'},
+    {provide: BET_TOKEN_ADDRESS, useValue: '0xFd45b41DE13DA901e94a8Fa83Cb60651cEd4c948'},
   ],
   bootstrap: [AppComponent]
 })
