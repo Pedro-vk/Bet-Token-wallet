@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import blockies = require('blockies');
@@ -8,7 +8,8 @@ import { BetTokenService, Token, Bet } from './shared';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
   newBet: Partial<Bet> = {};
@@ -24,7 +25,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.balance$ = this.betTokenService.getBalanceChanges();
     this.debt$ = this.betTokenService.getDebtChanges();
-    this.myBets$ = this.betTokenService.getMyBetsChanges();
+    this.myBets$ = this.betTokenService.getMyBetsChanges().map((bets: Bet[] = []) => bets.reverse());
     this.availableBalance$ = this.betTokenService.getAvailableBalanceChanges();
 
     this.betTokenService

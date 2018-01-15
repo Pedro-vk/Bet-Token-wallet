@@ -176,7 +176,7 @@ export class BetTokenService {
 
   getMyBets(): Observable<Bet[]> {
     return this.getAccount()
-      .mergeMap(account =>
+      .mergeMap((account: string = '') =>
         this.getBets()
           .map(bets => bets
             .filter(({from, against}) =>
