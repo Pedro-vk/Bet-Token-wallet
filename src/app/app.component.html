@@ -1,18 +1,57 @@
 <h1><strong>{{token?.name}}</strong> wallet</h1>
 <h2>Symbol: <code>{{token?.symbol}}</code></h2>
 
+<br><br>
+<h3>Account:</h3>
 
-<div class="blockie" [style.background-image]="getImageOf(account)"></div>
+<div class="blockie" *ngIf="account" [style.background-image]="getImageOf(account)"></div>
 {{account}}
-<br>
 
+<br>
 Balance: {{balance$ | async}} {{token?.symbol}}
+
+<br>
+Available balance: {{availableBalance$ | async}} {{token?.symbol}}
+
 <br>
 On bets: {{debt$ | async}} {{token?.symbol}}
-<br>
+
+<br><br>
+<h3>Bets:</h3>
 
 <div class="bet" *ngFor="let bet of myBets$ | async; trackBy: trackBet">
   <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
   has bet {{bet.amount}} {{token?.symbol}} against
   <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
 </div>
+
+
+<br><br>
+<h3>New bet:</h3>
+
+<form #newBetForm="ngForm" novalidate>
+  Against:
+  <div class="blockie" [style.background-image]="newBet.against ? getImageOf(newBet.against) : ''"></div>
+  <input [(ngModel)]="newBet.against" type="text" name="newBetAgainst" placeholder="0x000000..." required>
+
+  <br>
+  Amount:
+  <input
+    [(ngModel)]="newBet.amount"
+    type="number"
+    name="newBetAmount"
+    placeholder="12"
+    required
+    min="0"
+    [max]="availableBalance$ | async">
+  {{token?.symbol}}
+
+  <br>
+  Bet:
+  <input [(ngModel)]="newBet.bet" type="text" name="newBetBet" placeholder="I will..." required>
+  <br>
+  <strong>&#9888; You won't win the bet, you shouldn't make bets that you know that you are going to lose.</strong>
+
+  <br>
+  <button type="button" [disabled]="!newBetForm.valid" (click)="createBet()">Submit the bet</button>
+</form>

@@ -93,6 +93,13 @@ export class BetTokenService {
       );
   }
 
+  getAvailableBalance(): Observable<number> {
+    return this.getAccount()
+      .mergeMap(account =>
+        Observable.fromPromise(this.getContract().methods.availableBalanceOf(account).call()),
+      );
+  }
+
   getDebt(): Observable<number> {
     return this.getAccount()
       .mergeMap(account =>
@@ -114,10 +121,10 @@ export class BetTokenService {
       );
   }
 
-  createBet(to: string, amount: number, bet: string): Observable<any> {
+  createBet(against: string, amount: number, bet: string): Observable<any> {
     return this.getAccount()
       .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.bet(to, amount, bet).send({from})),
+        Observable.fromPromise(this.getContract().methods.bet(against, amount, bet).send({from})),
       );
   }
 
@@ -183,6 +190,7 @@ export class BetTokenService {
   }
 
   private checkData(...type: ('bet' | 'transaction')[]): Observable<any> {
+    // TODO: wait until MetaMask events support
     return Observable.interval(2000).startWith(undefined);
   }
 
@@ -195,6 +203,12 @@ export class BetTokenService {
   getBalanceChanges(): Observable<number> {
     return this.checkData('transaction')
       .mergeMap(() => this.getBalance())
+      .distinctUntilChanged();
+  }
+
+  getAvailableBalanceChanges(): Observable<number> {
+    return this.checkData('bet', 'transaction')
+      .mergeMap(() => this.getAvailableBalance())
       .distinctUntilChanged();
   }
 
