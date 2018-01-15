@@ -42,7 +42,7 @@ On bets: {{debt$ | async}} {{token?.symbol}}
     name="newBetAmount"
     placeholder="12"
     required
-    min="0"
+    min="1"
     [max]="availableBalance$ | async">
   {{token?.symbol}}
 
