@@ -34,7 +34,7 @@ contract BetsToken is Token {
   string public symbol;
   uint8 public decimals;
   uint256 public totalSupply;
-  string public version = '1.0';
+  string public version = '1.1';
 
   address public owner;
 
@@ -182,8 +182,10 @@ contract BetsToken is Token {
     debt = 0;
     for (uint i = 0; i < bets.length; i++) {
       Bet memory b = bets[i];
-      if (b.from == _owner || (b.against == _owner && b.accepted)) {
-        debt += b.amount;
+      if (b.opened) {
+        if (b.from == _owner || (b.against == _owner && b.accepted)) {
+          debt += b.amount;
+        }
       }
     }
     return debt;
