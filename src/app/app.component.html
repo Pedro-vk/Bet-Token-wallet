@@ -9,6 +9,13 @@
 
 <br>
 Balance: {{balance$ | async}} {{token?.symbol}}
+<button
+  *ngIf="(balance$ | async) === 0"
+  (click)="dripToMe()"
+  type="button">
+
+  Give me a coin
+</button>
 
 <br>
 Available balance: {{availableBalance$ | async}} {{token?.symbol}}
@@ -21,8 +28,38 @@ On bets: {{debt$ | async}} {{token?.symbol}}
 
 <div class="bet" *ngFor="let bet of myBets$ | async; trackBy: trackBet">
   <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
-  has bet {{bet.amount}} {{token?.symbol}} against
+  has bet {{bet.amount}} {{token?.symbol}} because "{{bet.bet}}" against
   <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
+  <span *ngIf="bet.accepted">(is accepted)</span>
+  <button
+    *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+    (click)="accept(bet, true)"
+    [disabled]="(availableBalance$ | async) < bet.amount"
+    type="button">
+
+    Accept
+  </button>
+  <button
+    *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+    (click)="accept(bet, false)"
+    type="button">
+
+    Reject
+  </button>
+  <button
+    *ngIf="bet.against.toLowerCase() === account.toLowerCase() && bet.accepted"
+    (click)="giveMeTheMoney(bet)"
+    type="button">
+
+    Give me the money
+  </button>
+  <button
+    *ngIf="bet.from.toLowerCase() === account.toLowerCase()"
+    (click)="cryAndForgotBet(bet)"
+    type="button">
+
+    Cry and forgot the bet
+  </button>
 </div>
 
 

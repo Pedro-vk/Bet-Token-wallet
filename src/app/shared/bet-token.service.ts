@@ -101,21 +101,24 @@ export class BetTokenService {
     return this.getAccount()
       .mergeMap(account =>
         Observable.fromPromise(this.getContract().methods.balanceOf(account).call()),
-      );
+      )
+      .map(number => +number);
   }
 
   getAvailableBalance(): Observable<number> {
     return this.getAccount()
       .mergeMap(account =>
         Observable.fromPromise(this.getContract().methods.availableBalanceOf(account).call()),
-      );
+      )
+      .map(number => +number);
   }
 
   getDebt(): Observable<number> {
     return this.getAccount()
       .mergeMap(account =>
         Observable.fromPromise(this.getContract().methods.debtOf(account).call()),
-      );
+      )
+      .map(number => +number);
   }
 
   dripToMe(): Observable<any> {
@@ -203,7 +206,7 @@ export class BetTokenService {
   getBet(bet: number): Observable<Bet> {
     return Observable
       .fromPromise(this.getContract().methods.bets(bet).call())
-      .map(_ => ({id: bet, ..._}));
+      .map(_ => ({id: bet, ..._, amount: +_.amount}));
   }
 
   private onEvents(events: {[event: string]: any}): void {

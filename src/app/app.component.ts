@@ -44,12 +44,34 @@ export class AppComponent implements OnInit {
     );
   }
 
+  dripToMe(): void {
+    this.betTokenService
+      .dripToMe()
+      .subscribe();
+  }
+
   createBet(): void {
     const {against, amount, bet} = this.newBet;
     this.betTokenService
       .createBet(against, amount, bet)
-      .subscribe(event => console.log('Bet created', {event}));
+      .subscribe();
     this.newBet = {};
+  }
+
+  accept(bet: Bet, accept: boolean): void {
+    this.betTokenService
+      .acceptBet(bet.id, accept)
+      .subscribe();
+  }
+  giveMeTheMoney(bet: Bet): void {
+    this.betTokenService
+      .giveMeTheMoney(bet.id)
+      .subscribe();
+  }
+  cryAndForgotBet(bet: Bet): void {
+    this.betTokenService
+      .cryAndForgotBet(bet.id)
+      .subscribe();
   }
 
   trackBet(index: number, bet: Bet): string {
