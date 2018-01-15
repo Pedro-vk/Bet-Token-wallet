@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
       .subscribe(token => this.token = token);
 
     this.betTokenService
-      .getAccont()
+      .getAccount()
       .subscribe(account => this.account = account);
 
     console.log(this);

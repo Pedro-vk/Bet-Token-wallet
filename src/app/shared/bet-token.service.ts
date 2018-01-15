@@ -48,7 +48,7 @@ export class BetTokenService {
   constructor(@Inject(BET_TOKEN_ADDRESS) private betTokenAddress: string) {
     if (typeof (<any>window).web3 !== 'undefined') {
       this.web3 = new Web3((<any>window).web3.currentProvider);
-      this.getAccont()
+      this.getAccount()
         .subscribe(account => {
           this.web3.eth.defaultAccount = account;
           this._connected = true;
@@ -80,61 +80,63 @@ export class BetTokenService {
       .map(([name, symbol, decimals, version, owner, totalSupply]) => ({name, symbol, decimals, version, owner, totalSupply}));
   }
 
-  getAccont(): Observable<string> {
-    return Observable.fromPromise(this.web3.eth.getCoinbase());
+  getAccount(): Observable<string> {
+    return Observable
+      .fromPromise(this.web3.eth.getAccounts())
+      .map(accounts => accounts[0]);
   }
 
   getBalance(): Observable<number> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(account =>
         Observable.fromPromise(this.getContract().methods.balanceOf(account).call()),
       );
   }
 
   getDebt(): Observable<number> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(account =>
         Observable.fromPromise(this.getContract().methods.debtOf(account).call()),
       );
   }
 
   dripToMe(): Observable<any> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(from =>
         Observable.fromPromise(this.getContract().methods.dripToMe().send({from})),
       );
   }
 
   transfer(to: string, amount: number): Observable<any> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(from =>
         Observable.fromPromise(this.getContract().methods.transfer(to, amount).send({from})),
       );
   }
 
   createBet(to: string, amount: number, bet: string): Observable<any> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(from =>
         Observable.fromPromise(this.getContract().methods.bet(to, amount, bet).send({from})),
       );
   }
 
   acceptBet(bet: number, accept: boolean): Observable<any> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(from =>
         Observable.fromPromise(this.getContract().methods.acceptBet(bet, accept).send({from})),
       );
   }
 
   cryAndForgotBet(bet: number): Observable<any> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(from =>
         Observable.fromPromise(this.getContract().methods.cryAndForgotBet(bet).send({from})),
       );
   }
 
   giveMeTheMoney(bet: number): Observable<any> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(from =>
         Observable.fromPromise(this.getContract().methods.giveMeTheMoney(bet).send({from})),
       );
@@ -147,7 +149,7 @@ export class BetTokenService {
   }
 
   getMyBets(): Observable<Bet[]> {
-    return this.getAccont()
+    return this.getAccount()
       .mergeMap(account =>
         this.getBets()
           .map(bets => bets
