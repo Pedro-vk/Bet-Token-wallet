@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+- '7'
+branches:
+  only:
+  - master
+before_install:
+- openssl aes-256-cbc -K $encrypted_6539f449a6ac_key -iv $encrypted_6539f449a6ac_iv
+  -in .travisGitHub.enc -out .travisGitHub -d
+after_success:
+- npm run build
+- npm run gh-pages-travis
+- cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+env:
+  global:
+  - SSH_KEY=".travisGitHub"
+  - GIT_NAME="Pedro Gutiérrez"
+  - GIT_EMAIL="pedrogp9_6_93@hotmail.com"
+  - SOURCE_DIR="dist"
+  - DEPLOY_BRANCH="master"

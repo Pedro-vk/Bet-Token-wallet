@@ -1,11 +1,14 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { BetTokenService } from './bet-token.service';
+import { BetTokenService, BET_TOKEN_ADDRESS } from './bet-token.service';
 
 describe('BetTokenService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [BetTokenService]
+      providers: [
+        BetTokenService,
+        {provide: BET_TOKEN_ADDRESS, useValue: '0x0000000000000000000000000000000000000000'},
+      ],
     });
   });
 

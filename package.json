@@ -1,14 +1,24 @@
 {
   "name": "bet-token-wallet",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "description": "Wallet using a Token of BetToken smart contract (working on Ethereum)",
+  "homepage": "bet-token-wallet.xitrus.es",
+  "author": "Pedro Gutiérrez <info@xitrus.es> (http://xitrus.es)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pedro-vk/Bet-Token-wallet"
+  },
   "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --prod",
-    "test": "ng test",
+    "build": "ng build --aot --sourcemap --prod",
+    "test": "ng test --single-run --code-coverage",
+    "test:watch": "ng test --code-coverage",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "create-cname": "echo $(cat package.json | grep '\"homepage\"' | cut -d '\"' -f 4) > dist/CNAME",
+    "gh-pages-travis": "npm run create-cname && gh-pages-travis"
   },
   "private": true,
   "dependencies": {
@@ -36,14 +46,17 @@
     "@types/jasminewd2": "~2.0.2",
     "@types/node": "~6.0.60",
     "codelyzer": "^4.0.1",
+    "gh-pages-travis": "^1.0.4",
     "jasmine-core": "~2.8.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~2.0.0",
-    "karma-chrome-launcher": "~2.2.0",
     "karma-cli": "~1.0.1",
     "karma-coverage-istanbul-reporter": "^1.2.1",
+    "karma-coveralls": "^1.1.2",
     "karma-jasmine": "~1.1.0",
     "karma-jasmine-html-reporter": "^0.2.2",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "phantomjs-prebuilt": "^2.1.16",
     "protractor": "~5.1.2",
     "ts-node": "~3.2.0",
     "tslint": "~5.9.1",

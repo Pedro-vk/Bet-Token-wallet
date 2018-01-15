@@ -63,8 +63,7 @@ export class BetTokenService {
       console.log(this);
       console.log(this.web3);
       console.log(this.getContract());
-
-      this.events.subscribe(_ => console.log('events', _))
+      this.events.subscribe(_ => console.log('event:', _));
     } else {
       this._connected = false;
     }

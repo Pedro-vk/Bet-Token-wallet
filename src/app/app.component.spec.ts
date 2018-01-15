@@ -1,14 +1,23 @@
 import { TestBed, async } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
+
+import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
 import { AppComponent } from './app.component';
+
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        FormsModule,
       ],
       declarations: [
-        AppComponent
+        AppComponent,
+      ],
+      providers: [
+        ...PROVIDERS,
+        {provide: BET_TOKEN_ADDRESS, useValue: '0x0000000000000000000000000000000000000000'},
       ],
     }).compileComponents();
   }));
