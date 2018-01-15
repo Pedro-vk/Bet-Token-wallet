@@ -1,0 +1,18 @@
+<h1><strong>{{token?.name}}</strong> wallet</h1>
+<h2>Symbol: <code>{{token?.symbol}}</code></h2>
+
+
+<div class="blockie" [style.background-image]="getImageOf(account)"></div>
+{{account}}
+<br>
+
+Balance: {{balance$ | async}} {{token?.symbol}}
+<br>
+On bets: {{debt$ | async}} {{token?.symbol}}
+<br>
+
+<div class="bet" *ngFor="let bet of myBets$ | async; trackBy: trackBet">
+  <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
+  has bet {{bet.amount}} {{token?.symbol}} against
+  <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
+</div>

@@ -1,0 +1,36 @@
+.blockie {
+  $size: 18px;
+
+  background-size: cover;
+  border-radius: $size / 2;
+  display: inline-block;
+  height: $size;
+  vertical-align: middle;
+  width: $size;
+  position: relative;
+  cursor: pointer;
+  margin: 0 4px;
+
+  &[data-address]:hover:before {
+    box-sizing: border-box;
+    content: attr(data-address);
+    display: block;
+    position: absolute;
+    top: $size + 4px;
+    border-radius: 4px;
+    padding: 2px 8px;
+    width: 120px;
+    left: (-120px - 8px + $size) / 2;
+    background: rgba(0, 0, 0, .6);
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    z-index: 2;
+  }
+}
+
+.bet {
+  padding: 6px 0;
+}
