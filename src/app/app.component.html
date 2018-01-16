@@ -55,8 +55,8 @@
             placeholder="Amount"
             [(ngModel)]="newBet.amount"
             required
-            min="1"
             [disabled]="(availableBalance$ | async) === 0"
+            min="1"
             [max]="availableBalance$ | async">
         </mat-form-field>
 
@@ -90,16 +90,25 @@
   <mat-accordion class="bets-list">
     <mat-expansion-panel
       *ngFor="let bet of myBets$ | async; trackBy: trackBet"
+      class="bets-list__bet"
+      [class.bets-list__bet--opened]="openedBet === bet.id"
       [expanded]="openedBet === bet.id"
       (opened)="openedBet = bet.id"
+      (closed)="openedBet === bet.id ? openedBet = undefined : null"
       [hideToggle]="true">
 
       <mat-expansion-panel-header>
-        <mat-panel-title class="bets-list__title">
-          <div class="bets-list__status bets-list__status--{{bet.accepted ? 'ok' : 'wait'}}"></div>
-          <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
-          <span class="bets-list__vs">VS.</span>
-          <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
+        <div class="bets-list__status bets-list__status--{{bet.accepted ? 'ok' : 'wait'}}"></div>
+        <mat-panel-title class="bets-list__title-wrapper">
+          <div class="bets-list__title">
+            <div class="blockie" [style.background-image]="getImageOf(bet.from)">
+              <mat-icon *ngIf="bet.from === account">account_circle</mat-icon>
+            </div>
+            <span class="bets-list__vs">VS.</span>
+            <div class="blockie" [style.background-image]="getImageOf(bet.against)">
+              <mat-icon *ngIf="bet.against === account">account_circle</mat-icon>
+            </div>
+          </div>
         </mat-panel-title>
         <mat-panel-description class="bets-list__description">
           <div class="bets-list__description-text">{{bet.bet}}</div>
@@ -107,44 +116,54 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
+      <div class="bets-list__address">
+        <div class="blockie" [style.background-image]="getImageOf(bet.from)">
+          <mat-icon *ngIf="bet.from === account">account_circle</mat-icon>
+        </div><!--
+     --><span class="bets-list__address-text">{{bet.from}}</span>
+      </div>
+      <div class="bets-list__address">
+        <div class="blockie" [style.background-image]="getImageOf(bet.against)">
+          <mat-icon *ngIf="bet.against === account">account_circle</mat-icon>
+        </div><!--
+     --><span class="bets-list__address-text">{{bet.against}}</span>
+      </div>
+
+
       <mat-action-row>
+        <button mat-button
+          *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+          color="primary"
+          (click)="accept(bet, true)"
+          [disabled]="(availableBalance$ | async) < bet.amount"
+          type="button">
 
+          Accept
+        </button>
+        <button mat-button
+          *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+          color="warn"
+          (click)="accept(bet, false)"
+          type="button">
 
-    <button mat-button
-      *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
-      color="primary"
-      (click)="accept(bet, true)"
-      [disabled]="(availableBalance$ | async) < bet.amount"
-      type="button">
+          Reject
+        </button>
+        <button mat-button
+          *ngIf="bet.against.toLowerCase() === account.toLowerCase() && bet.accepted"
+          color="primary"
+          (click)="giveMeTheMoney(bet)"
+          type="button">
 
-      Accept
-    </button>
-    <button mat-button
-      *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
-      color="warn"
-      (click)="accept(bet, false)"
-      type="button">
+          Give me the money
+        </button>
+        <button mat-button
+          *ngIf="bet.from.toLowerCase() === account.toLowerCase()"
+          color="primary"
+          (click)="cryAndForgotBet(bet)"
+          type="button">
 
-      Reject
-    </button>
-    <button mat-button
-      *ngIf="bet.against.toLowerCase() === account.toLowerCase() && bet.accepted"
-      color="primary"
-      (click)="giveMeTheMoney(bet)"
-      type="button">
-
-      Give me the money
-    </button>
-    <button mat-button
-      *ngIf="bet.from.toLowerCase() === account.toLowerCase()"
-      color="primary"
-      (click)="cryAndForgotBet(bet)"
-      type="button">
-
-      Cry and forgot the bet
-    </button>
-
-
+          Cry and forgot the bet
+        </button>
       </mat-action-row>
     </mat-expansion-panel>
   </mat-accordion>
