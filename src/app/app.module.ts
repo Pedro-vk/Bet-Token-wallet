@@ -5,6 +5,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -30,6 +31,7 @@ import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
 
     MatButtonModule,
     MatCardModule,
+    MatExpansionModule,
     MatIconModule,
     MatInputModule,
     MatToolbarModule,

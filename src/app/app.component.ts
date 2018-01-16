@@ -14,6 +14,7 @@ import { BetTokenService, Token, Bet } from './shared';
 export class AppComponent implements OnInit {
   newBet: Partial<Bet> = {};
   account: string;
+  openedBet: number = undefined;
   token: Token;
   balance$: Observable<number>;
   availableBalance$: Observable<number>;

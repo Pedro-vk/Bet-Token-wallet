@@ -87,43 +87,66 @@
     </mat-card>
   </form>
 
-  <br><br>
-  <h3>Bets:</h3>
+  <mat-accordion class="bets-list">
+    <mat-expansion-panel
+      *ngFor="let bet of myBets$ | async; trackBy: trackBet"
+      [expanded]="openedBet === bet.id"
+      (opened)="openedBet = bet.id"
+      [hideToggle]="true">
 
-  <div class="bet" *ngFor="let bet of myBets$ | async; trackBy: trackBet">
-    <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
-    has bet {{bet.amount}} {{token?.symbol}} because "{{bet.bet}}" against
-    <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
-    <span *ngIf="bet.accepted">(is accepted)</span>
-    <button
+      <mat-expansion-panel-header>
+        <mat-panel-title class="bets-list__title">
+          <div class="bets-list__status bets-list__status--{{bet.accepted ? 'ok' : 'wait'}}"></div>
+          <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
+          <span class="bets-list__vs">VS.</span>
+          <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
+        </mat-panel-title>
+        <mat-panel-description class="bets-list__description">
+          <div class="bets-list__description-text">{{bet.bet}}</div>
+          <div class="bets-list__description-amount">{{bet.amount}} {{token?.symbol}}</div>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <mat-action-row>
+
+
+    <button mat-button
       *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+      color="primary"
       (click)="accept(bet, true)"
       [disabled]="(availableBalance$ | async) < bet.amount"
       type="button">
 
       Accept
     </button>
-    <button
+    <button mat-button
       *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+      color="warn"
       (click)="accept(bet, false)"
       type="button">
 
       Reject
     </button>
-    <button
+    <button mat-button
       *ngIf="bet.against.toLowerCase() === account.toLowerCase() && bet.accepted"
+      color="primary"
       (click)="giveMeTheMoney(bet)"
       type="button">
 
       Give me the money
     </button>
-    <button
+    <button mat-button
       *ngIf="bet.from.toLowerCase() === account.toLowerCase()"
+      color="primary"
       (click)="cryAndForgotBet(bet)"
       type="button">
 
       Cry and forgot the bet
     </button>
-  </div>
+
+
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
 
 </div>
