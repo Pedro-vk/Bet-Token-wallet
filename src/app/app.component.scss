@@ -7,6 +7,13 @@ $header--secondary---height: 48px !default;
   transition: all .26s ease;
 }
 
+.header,
+.container {
+  &:not(.visible) {
+    display: none;
+  }
+}
+
 .container {
   position: fixed;
   top: $header---height + $header--secondary---height;
@@ -273,5 +280,42 @@ $header--secondary---height: 48px !default;
   }
   &__bet--opened &__title-wrapper {
     width: 0;
+  }
+}
+
+.warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  z-index: 10;
+  display: flex;
+  text-align: center;
+
+  &__header {
+    font-size: 46px;
+    padding-bottom: 30px;
+  }
+  &__message {
+    font-size: 18px;
+    line-height: 1.4em;
+  }
+
+  &-wrapper {
+    margin: auto;
+  }
+
+  button {
+    margin: 30px 0;
+  }
+
+  iframe {
+    margin-top: 40px;
+    max-width: 480px;
+    display: block;
+    margin: auto;
+    border: 0;
   }
 }

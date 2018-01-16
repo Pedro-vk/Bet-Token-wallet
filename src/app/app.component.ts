@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { NgForm } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
@@ -11,6 +12,18 @@ import { BetTokenService, Token, Bet, connectionStatus } from './shared';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('easeInOut', [
+      transition(':enter', [
+        style({opacity: 0}),
+        animate('.3s ease-in-out', style({opacity: 1})),
+      ]),
+      transition(':leave', [
+        style({opacity: 1}),
+        animate('.3s ease-in-out', style({opacity: 0})),
+      ])
+    ])
+  ],
 })
 export class AppComponent implements OnInit {
   newBet: Partial<Bet> = {};
@@ -18,6 +31,7 @@ export class AppComponent implements OnInit {
   openedBet: number = undefined;
   creatingBet: boolean;
   token: Token;
+  clickedInstallMetaMask: boolean;
   connected$: Observable<connectionStatus>;
   balance$: Observable<number>;
   availableBalance$: Observable<number>;
@@ -87,5 +101,9 @@ export class AppComponent implements OnInit {
 
   trackBet(index: number, bet: Bet): string {
     return String(bet.id) || '';
+  }
+
+  reload(): void {
+    window.location.reload();
   }
 }
