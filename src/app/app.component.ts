@@ -4,7 +4,7 @@ import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import blockies = require('blockies');
 
-import { BetTokenService, Token, Bet } from './shared';
+import { BetTokenService, Token, Bet, connectionStatus } from './shared';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   openedBet: number = undefined;
   creatingBet: boolean;
   token: Token;
+  connected$: Observable<connectionStatus>;
   balance$: Observable<number>;
   availableBalance$: Observable<number>;
   debt$: Observable<number>;
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit {
   constructor(private betTokenService: BetTokenService, private domSanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
+    this.connected$ = this.betTokenService.connectedChange;
     this.balance$ = this.betTokenService.getBalanceChanges();
     this.debt$ = this.betTokenService.getDebtChanges();
     this.myBets$ = this.betTokenService.getMyBetsChanges().map((bets: Bet[] = []) => bets.reverse());
@@ -39,8 +41,6 @@ export class AppComponent implements OnInit {
     this.betTokenService
       .getAccountChanges()
       .subscribe(account => this.account = account);
-
-    console.log(this);
   }
 
   getImageOf(account: string = ''): SafeStyle {

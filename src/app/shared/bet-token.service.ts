@@ -8,13 +8,17 @@ import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/observable/interval';
 import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/combineLatest';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/startWith';
+import 'rxjs/add/operator/take';
 
 import { betTokenInterface } from './bet-token.config';
 
@@ -40,137 +44,183 @@ export interface Bet {
   opened: boolean;
 }
 
+export type connectionStatus = 'total' | 'no-account' | 'no-provider';
+
 @Injectable()
 export class BetTokenService {
   account: string;
-  private _connected = undefined;
+  private _connectedChange: Subject<connectionStatus> = new Subject();
+  connectedChange: Observable<connectionStatus> = this._connectedChange.distinctUntilChanged().share();
+  private _connected: connectionStatus = undefined;
   private events: Subject<{event: string, response: any}> = new Subject();
   private web3: Web3;
   private contract: Contract;
+  private defaultTimer: Observable<any> = Observable.interval(2000).startWith(undefined).share();
 
-  get connected(): boolean {
+  get connected(): connectionStatus {
     return this._connected;
   }
 
   constructor(@Inject(BET_TOKEN_ADDRESS) private betTokenAddress: string) {
-    if (typeof (<any>window).web3 !== 'undefined') {
+    this.initWeb3();
+    this.checkData()
+      .filter(() => (<any>window).web3 && (<any>window).web3.currentProvider)
+      .take(1)
+      .subscribe(() => this.initWeb3);
+    this.connectedChange
+      .filter(status => status === 'total')
+      .mergeMap(() => this.getAccount())
+      .subscribe(account => {
+        this.web3.eth.defaultAccount = account;
+      });
+    this.checkData()
+      .mergeMap(() => this.getAccount())
+      .distinctUntilChanged()
+      .subscribe(account => {
+        switch (account) {
+          case undefined: this._connected = 'no-provider'; break;
+          case '': this._connected = 'no-account'; break;
+          default: this._connected = 'total'; break;
+        }
+        this._connectedChange.next(this._connected);
+      });
+  }
+
+  private initWeb3(): void {
+    if ((<any>window).web3) {
       this.web3 = new Web3((<any>window).web3.currentProvider);
-      this.getAccount()
-        .subscribe(account => {
-          this.web3.eth.defaultAccount = account;
-          this._connected = true;
-        });
-      console.log(this);
-      console.log(this.web3);
-      console.log(this.getContract());
-      this.events.subscribe(_ => console.log('event:', _));
-    } else {
-      this._connected = false;
     }
   }
 
-  private getContract(): Contract {
+  private getRawContract(): Contract {
+    if (!this.web3) {
+      return;
+    }
     if (!this.contract) {
       this.contract = new this.web3.eth.Contract(betTokenInterface, this.betTokenAddress);
     }
     return this.contract;
   }
 
-  getToken(): Observable<Token> {
-    const contract = this.getContract();
-    return Observable
-      .combineLatest(
-        Observable.fromPromise(contract.methods.name().call()),
-        Observable.fromPromise(contract.methods.symbol().call()),
-        Observable.fromPromise(contract.methods.decimals().call()),
-        Observable.fromPromise(contract.methods.version().call()),
-        Observable.fromPromise(contract.methods.owner().call()),
-        Observable.fromPromise(contract.methods.totalSupply().call()),
-      )
-      .map(([name, symbol, decimals, version, owner, totalSupply]) => ({name, symbol, decimals, version, owner, totalSupply}));
+  private getContract(): Observable<Contract> {
+    const contract = this.getRawContract();
+    if (!contract) {
+      return Observable.empty();
+    }
+    return Observable.of(contract);
   }
 
   getAccount(): Observable<string> {
+    if (!this.web3) {
+      return Observable.of(undefined);
+    }
     return Observable
       .fromPromise(this.web3.eth.getAccounts())
-      .map(accounts => accounts[0]);
+      .map(accounts => accounts[0] || '');
+  }
+
+  getToken(): Observable<Token> {
+    return this.getContract()
+      .mergeMap(contract =>
+        Observable
+          .combineLatest(
+            Observable.fromPromise(contract.methods.name().call()),
+            Observable.fromPromise(contract.methods.symbol().call()),
+            Observable.fromPromise(contract.methods.decimals().call()),
+            Observable.fromPromise(contract.methods.version().call()),
+            Observable.fromPromise(contract.methods.owner().call()),
+            Observable.fromPromise(contract.methods.totalSupply().call()),
+          )
+          .map(([name, symbol, decimals, version, owner, totalSupply]) => ({name, symbol, decimals, version, owner, totalSupply})),
+      );
   }
 
   getBalance(): Observable<number> {
     return this.getAccount()
-      .mergeMap(account =>
-        Observable.fromPromise(this.getContract().methods.balanceOf(account).call()),
+      .combineLatest(this.getContract())
+      .mergeMap(([account, contract]) =>
+        Observable.fromPromise(contract.methods.balanceOf(account).call()),
       )
       .map(number => +number);
   }
 
   getAvailableBalance(): Observable<number> {
     return this.getAccount()
-      .mergeMap(account =>
-        Observable.fromPromise(this.getContract().methods.availableBalanceOf(account).call()),
+      .combineLatest(this.getContract())
+      .mergeMap(([account, contract]) =>
+        Observable.fromPromise(contract.methods.availableBalanceOf(account).call()),
       )
       .map(number => +number);
   }
 
   getDebt(): Observable<number> {
     return this.getAccount()
-      .mergeMap(account =>
-        Observable.fromPromise(this.getContract().methods.debtOf(account).call()),
+      .combineLatest(this.getContract())
+      .mergeMap(([account, contract]) =>
+        Observable.fromPromise(contract.methods.debtOf(account).call()),
       )
       .map(number => +number);
   }
 
   dripToMe(): Observable<any> {
     return this.getAccount()
-      .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.dripToMe().send({from})),
+      .combineLatest(this.getContract())
+      .mergeMap(([from, contract]) =>
+        Observable.fromPromise(contract.methods.dripToMe().send({from})),
       )
       .do(({events}) => this.onEvents(events));
   }
 
   transfer(to: string, amount: number): Observable<any> {
     return this.getAccount()
-      .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.transfer(to, amount).send({from})),
+      .combineLatest(this.getContract())
+      .mergeMap(([from, contract]) =>
+        Observable.fromPromise(contract.methods.transfer(to, amount).send({from})),
       )
       .do(({events}) => this.onEvents(events));
   }
 
   createBet(against: string, amount: number, bet: string): Observable<any> {
     return this.getAccount()
-      .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.bet(against, amount, bet).send({from})),
+      .combineLatest(this.getContract())
+      .mergeMap(([from, contract]) =>
+        Observable.fromPromise(contract.methods.bet(against, amount, bet).send({from})),
       )
       .do(({events}) => this.onEvents(events));
   }
 
   acceptBet(bet: number, accept: boolean): Observable<any> {
     return this.getAccount()
-      .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.acceptBet(bet, accept).send({from})),
+      .combineLatest(this.getContract())
+      .mergeMap(([from, contract]) =>
+        Observable.fromPromise(contract.methods.acceptBet(bet, accept).send({from})),
       )
       .do(({events}) => this.onEvents(events));
   }
 
   cryAndForgotBet(bet: number): Observable<any> {
     return this.getAccount()
-      .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.cryAndForgotBet(bet).send({from})),
+      .combineLatest(this.getContract())
+      .mergeMap(([from, contract]) =>
+        Observable.fromPromise(contract.methods.cryAndForgotBet(bet).send({from})),
       )
       .do(({events}) => this.onEvents(events));
   }
 
   giveMeTheMoney(bet: number): Observable<any> {
     return this.getAccount()
-      .mergeMap(from =>
-        Observable.fromPromise(this.getContract().methods.giveMeTheMoney(bet).send({from})),
+      .combineLatest(this.getContract())
+      .mergeMap(([from, contract]) =>
+        Observable.fromPromise(contract.methods.giveMeTheMoney(bet).send({from})),
       )
       .do(({events}) => this.onEvents(events));
   }
 
   getBetSize(): Observable<number> {
-    return Observable.
-      fromPromise(this.getContract().methods.betsSize().call())
+    return this.getContract()
+      .mergeMap(contract =>
+        Observable.fromPromise(contract.methods.betsSize().call()),
+      )
       .map(size => +size);
   }
 
@@ -203,8 +253,10 @@ export class BetTokenService {
   }
 
   getBet(bet: number): Observable<Bet> {
-    return Observable
-      .fromPromise(this.getContract().methods.bets(bet).call())
+    return this.getContract()
+      .mergeMap(contract =>
+        Observable.fromPromise(contract.methods.bets(bet).call()),
+      )
       .map(_ => ({id: bet, ..._, amount: +_.amount}));
   }
 
@@ -217,7 +269,7 @@ export class BetTokenService {
   private checkData(...types: ('bet' | 'transaction')[]): Observable<any> {
     // TODO: wait until MetaMask events support
     const triggers: Observable<any>[] = [];
-    triggers.push(Observable.interval(2000).startWith(undefined));
+    triggers.push(this.defaultTimer);
     types
       .map(type => {
         switch (type) {
