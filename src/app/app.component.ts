@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import blockies = require('blockies');
@@ -15,11 +16,13 @@ export class AppComponent implements OnInit {
   newBet: Partial<Bet> = {};
   account: string;
   openedBet: number = undefined;
+  creatingBet: boolean;
   token: Token;
   balance$: Observable<number>;
   availableBalance$: Observable<number>;
   debt$: Observable<number>;
   myBets$: Observable<Bet[]>;
+  @ViewChild('newBetForm') newBetForm: NgForm;
 
   constructor(private betTokenService: BetTokenService, private domSanitizer: DomSanitizer) { }
 
@@ -56,7 +59,14 @@ export class AppComponent implements OnInit {
     const {against, amount, bet} = this.newBet;
     this.betTokenService
       .createBet(against, amount, bet)
-      .subscribe(() => this.newBet = {});
+      .subscribe(
+        () => {
+          this.newBetForm.reset();
+          this.creatingBet = false;
+        },
+        () => this.creatingBet = false,
+      );
+    this.creatingBet = true;
   }
 
   accept(bet: Bet, accept: boolean): void {

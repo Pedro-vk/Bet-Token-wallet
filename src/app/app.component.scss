@@ -131,6 +131,13 @@ $header--secondary---height: 48px !default;
 }
 
 .new-bet {
+  @include transition;
+
+  &--disabled {
+    opacity: .7;
+    pointer-events: none;
+  }
+
   mat-card-subtitle mat-icon {
     font-size: 18px;
     width: 20px;
@@ -176,6 +183,8 @@ $header--secondary---height: 48px !default;
 }
 
 .bets-list {
+  $header-padding: 24px;
+
   &__bet {
     overflow: hidden;
 
@@ -183,6 +192,9 @@ $header--secondary---height: 48px !default;
       overflow: initial;
       align-items: center;
     }
+  }
+  mat-expansion-panel-header {
+    padding: 0;
   }
   &__vs {
     display: inline-block;
@@ -200,7 +212,7 @@ $header--secondary---height: 48px !default;
     &-wrapper {
       @include transition;
 
-      width: 200px;
+      width: 160px;
       flex-grow: initial;
       display: block;
       margin: 0;
@@ -209,6 +221,9 @@ $header--secondary---height: 48px !default;
   &__description {
     line-height: 26px;
     display: flex;
+    margin: 0;
+    flex: 1;
+    flex-wrap: wrap;
 
     &-text {
       text-overflow: ellipsis;
@@ -218,6 +233,7 @@ $header--secondary---height: 48px !default;
     }
     &-amount {
       font-family: 'Roboto Mono', monospace;
+      padding: 0 $header-padding;
     }
   }
   &__status {
@@ -226,6 +242,7 @@ $header--secondary---height: 48px !default;
     width: $size;
     height: $size;
     border-radius: $size / 2;
+    margin-left: $header-padding;
     margin-right: 20px;
     order: -1;
 

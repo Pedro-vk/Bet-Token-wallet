@@ -21,7 +21,7 @@
 <div class="container">
 
   <form #newBetForm="ngForm" novalidate>
-    <mat-card class="new-bet">
+    <mat-card class="new-bet" [class.new-bet--disabled]="creatingBet">
       <mat-card-header>
         <mat-card-title>New bet</mat-card-title>
         <mat-card-subtitle>
@@ -75,9 +75,11 @@
 
 
       <mat-card-actions>
-        <button mat-button color="warn" (click)="newBet = {}">Cancel</button>
+        <button mat-button (click)="newBetForm.reset()" type="button">Clear</button>
         <button
           mat-button
+          color="primary"
+          type="button"
           [disabled]="!newBetForm.valid && (availableBalance$ | async) !== 0"
           (click)="createBet()">
 
