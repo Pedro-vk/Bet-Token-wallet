@@ -216,7 +216,6 @@ export class BetTokenService {
 
   private checkData(...types: ('bet' | 'transaction')[]): Observable<any> {
     // TODO: wait until MetaMask events support
-    // return Observable.interval(2000).startWith(undefined);
     const triggers: Observable<any>[] = [];
     triggers.push(Observable.interval(2000).startWith(undefined));
     types
@@ -229,6 +228,12 @@ export class BetTokenService {
       })
       .forEach(observable => triggers.push(observable));
     return Observable.merge(...triggers).debounceTime(100);
+  }
+
+  getAccountChanges(): Observable<string> {
+    return this.checkData()
+      .mergeMap(() => this.getAccount())
+      .distinctUntilChanged();
   }
 
   getMyBetsChanges(): Observable<Bet[]> {

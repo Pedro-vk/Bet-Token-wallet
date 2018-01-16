@@ -1,94 +1,129 @@
-<h1><strong>{{token?.name}}</strong> wallet</h1>
-<h2>Symbol: <code>{{token?.symbol}}</code></h2>
+<mat-toolbar class="header header--primary" color="primary">
+  <span>{{token?.name}} wallet</span>
+  <span></span>
+</mat-toolbar>
+<mat-toolbar class="header header--secondary" color="accent">
+  <span>
+    <div class="blockie blockie--big" *ngIf="account" [style.background-image]="getImageOf(account)"></div>
+    <span class="header__account">{{account}}</span>
+  </span>
+  <div class="header__balance">
+    <div class="header__balance-row">Balance:<code> {{balance$ | async}} {{token?.symbol}}</code></div>
+    <div class="header__balance-row" *ngIf="(balance$ | async) !== 0">
+      Available:<code> {{availableBalance$ | async}} {{token?.symbol}}</code>
+    </div>
+    <div class="header__balance-row" *ngIf="(balance$ | async) === 0">
+      <code class="link" (click)="dripToMe()">Claim a {{token?.symbol}}</code>
+    </div>
+  </div>
+</mat-toolbar>
 
-<br><br>
-<h3>Account:</h3>
+<div class="container">
 
-<div class="blockie" *ngIf="account" [style.background-image]="getImageOf(account)"></div>
-{{account}}
+  <form #newBetForm="ngForm" novalidate>
+    <mat-card class="new-bet">
+      <mat-card-header>
+        <mat-card-title>New bet</mat-card-title>
+        <mat-card-subtitle>
+          <mat-icon>warning</mat-icon>
+          You won't win the bet (your word is worth less than 1 {{token?.symbol}})
+        </mat-card-subtitle>
+      </mat-card-header>
 
-<br>
-Balance: {{balance$ | async}} {{token?.symbol}}
-<button
-  *ngIf="(balance$ | async) === 0"
-  (click)="dripToMe()"
-  type="button">
+      <mat-form-field class="new-bet__address" floatPlaceholder="never">
+        <div
+          matPrefix
+          class="blockie blockie--prefix"
+          [style.background-image]="newBet.against ? getImageOf(newBet.against) : ''">
+        </div>
+        <input
+          matInput
+          [(ngModel)]="newBet.against"
+          type="text"
+          name="newBetAgainst"
+          placeholder="0x0000000000000000000000000000000000000000"
+          required>
+      </mat-form-field>
 
-  Give me a coin
-</button>
+      <div class="new-bet__cols">
+        <mat-form-field class="new-bet__amount">
+          <span matSuffix>{{token?.symbol}}</span>
+          <input
+            matInput
+            name="newBetAmount"
+            type="number"
+            placeholder="Amount"
+            [(ngModel)]="newBet.amount"
+            required
+            min="1"
+            [disabled]="(availableBalance$ | async) === 0"
+            [max]="availableBalance$ | async">
+        </mat-form-field>
 
-<br>
-Available balance: {{availableBalance$ | async}} {{token?.symbol}}
+        <div class="new-bet__cols-span"></div>
 
-<br>
-On bets: {{debt$ | async}} {{token?.symbol}}
+        <mat-form-field class="new-bet__bet">
+          <input
+            matInput
+            name="newBetBet"
+            type="text"
+            placeholder="Bet"
+            [(ngModel)]="newBet.bet"
+            required>
+        </mat-form-field>
+      </div>
 
-<br><br>
-<h3>Bets:</h3>
 
-<div class="bet" *ngFor="let bet of myBets$ | async; trackBy: trackBet">
-  <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
-  has bet {{bet.amount}} {{token?.symbol}} because "{{bet.bet}}" against
-  <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
-  <span *ngIf="bet.accepted">(is accepted)</span>
-  <button
-    *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
-    (click)="accept(bet, true)"
-    [disabled]="(availableBalance$ | async) < bet.amount"
-    type="button">
+      <mat-card-actions>
+        <button mat-button color="warn" (click)="newBet = {}">Cancel</button>
+        <button
+          mat-button
+          [disabled]="!newBetForm.valid && (availableBalance$ | async) !== 0"
+          (click)="createBet()">
 
-    Accept
-  </button>
-  <button
-    *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
-    (click)="accept(bet, false)"
-    type="button">
+          Submit bet
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </form>
 
-    Reject
-  </button>
-  <button
-    *ngIf="bet.against.toLowerCase() === account.toLowerCase() && bet.accepted"
-    (click)="giveMeTheMoney(bet)"
-    type="button">
+  <br><br>
+  <h3>Bets:</h3>
 
-    Give me the money
-  </button>
-  <button
-    *ngIf="bet.from.toLowerCase() === account.toLowerCase()"
-    (click)="cryAndForgotBet(bet)"
-    type="button">
+  <div class="bet" *ngFor="let bet of myBets$ | async; trackBy: trackBet">
+    <div class="blockie" [attr.data-address]="bet.from" [style.background-image]="getImageOf(bet.from)"></div>
+    has bet {{bet.amount}} {{token?.symbol}} because "{{bet.bet}}" against
+    <div class="blockie" [attr.data-address]="bet.against" [style.background-image]="getImageOf(bet.against)"></div>
+    <span *ngIf="bet.accepted">(is accepted)</span>
+    <button
+      *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+      (click)="accept(bet, true)"
+      [disabled]="(availableBalance$ | async) < bet.amount"
+      type="button">
 
-    Cry and forgot the bet
-  </button>
+      Accept
+    </button>
+    <button
+      *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
+      (click)="accept(bet, false)"
+      type="button">
+
+      Reject
+    </button>
+    <button
+      *ngIf="bet.against.toLowerCase() === account.toLowerCase() && bet.accepted"
+      (click)="giveMeTheMoney(bet)"
+      type="button">
+
+      Give me the money
+    </button>
+    <button
+      *ngIf="bet.from.toLowerCase() === account.toLowerCase()"
+      (click)="cryAndForgotBet(bet)"
+      type="button">
+
+      Cry and forgot the bet
+    </button>
+  </div>
+
 </div>
-
-
-<br><br>
-<h3>New bet:</h3>
-
-<form #newBetForm="ngForm" novalidate>
-  Against:
-  <div class="blockie" [style.background-image]="newBet.against ? getImageOf(newBet.against) : ''"></div>
-  <input [(ngModel)]="newBet.against" type="text" name="newBetAgainst" placeholder="0x000000..." required>
-
-  <br>
-  Amount:
-  <input
-    [(ngModel)]="newBet.amount"
-    type="number"
-    name="newBetAmount"
-    placeholder="12"
-    required
-    min="1"
-    [max]="availableBalance$ | async">
-  {{token?.symbol}}
-
-  <br>
-  Bet:
-  <input [(ngModel)]="newBet.bet" type="text" name="newBetBet" placeholder="I will..." required>
-  <br>
-  <strong>&#9888; You won't win the bet, you shouldn't make bets that you know that you are going to lose.</strong>
-
-  <br>
-  <button type="button" [disabled]="!newBetForm.valid" (click)="createBet()">Submit the bet</button>
-</form>

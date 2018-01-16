@@ -1,6 +1,72 @@
+@import '~@angular/material/theming';
+
+$header---height: 64px !default;
+$header--secondary---height: 48px !default;
+
+.container {
+  position: fixed;
+  top: $header---height + $header--secondary---height;
+  display: block;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+  z-index: 1;
+  padding: 40px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  width: 100%;
+  top: 0;
+
+  &--primary {
+    z-index: 3;
+    height: $header---height;
+  }
+  &--secondary {
+    z-index: 2;
+    top: $header---height;
+    height: $header--secondary---height;
+    box-shadow: 0 0 12px rgba(0, 0, 0, .3);
+  }
+
+  &__account {
+    padding-left: 10px;
+    vertical-align: middle;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  &__balance {
+    font-size: 12px;
+    text-align: right;
+
+    &-row {
+      height: ($header--secondary---height - 8px) / 2;
+      line-height: ($header--secondary---height - 8px) / 2;
+
+      code {
+        font-family: monospace;
+      }
+    }
+  }
+}
+
+.link {
+  color: #2578FF;
+  transition: all .3s ease;
+  cursor: pointer;
+
+  &:hover {
+    opacity: .6;
+  }
+}
+
 .blockie {
-  $size: 18px;
-  $size-hover: 24px;
+  $size: 20px;
+  $size-big: 30px;
 
   background-size: cover;
   border-radius: $size / 2;
@@ -9,18 +75,21 @@
   width: $size;
   vertical-align: middle;
   position: relative;
-  top: -2px;
   cursor: default;
-  margin: (($size-hover - $size) / 2);
   transition: all .3s ease;
+  background-image: linear-gradient(120deg, #2af598 0%, #009efd 100%);
 
-  &:hover {
-    z-index: 2;
-
-    height: $size-hover;
-    width: $size-hover;
-    border-radius: $size-hover / 2;
+  &--big {
+    border-radius: $size-big / 2;
+    height: $size-big;
+    width: $size-big;
+    top: 0;
     margin: 0;
+    box-shadow: inset 0 -1px 1px 1px rgba(0, 0, 0, .2);
+  }
+  &--prefix {
+    margin-right: 10px;
+    margin-bottom: 4px;
   }
 
   &[data-address]:hover:before {
@@ -32,7 +101,7 @@
     border-radius: 4px;
     padding: 2px 8px;
     width: 120px;
-    left: (-120px - 8px + $size-hover) / 2;
+    left: (-120px - 8px + $size) / 2;
     background: rgba(0, 0, 0, .6);
     color: #ffffff;
     overflow: hidden;
@@ -43,6 +112,37 @@
   }
 }
 
-.bet {
-  padding: 6px 0;
+.new-bet {
+  max-width: 480px;
+  margin: auto;
+
+  mat-card-subtitle mat-icon {
+    font-size: 18px;
+    width: 20px;
+    height: 18px;
+    line-height: 16px;
+    vertical-align: middle;
+  }
+
+  &__address {
+    width: 100%;
+  }
+  &__amount {
+    input {
+      text-align: right;
+    }
+  }
+  &__cols {
+    display: flex;
+
+    &-span {
+      width: 20px;
+    }
+  }
+  &__bet {
+    flex: 1;
+  }
+  &__amount {
+    width: 35%;
+  }
 }

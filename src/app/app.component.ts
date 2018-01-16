@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
       .subscribe(token => this.token = token);
 
     this.betTokenService
-      .getAccount()
+      .getAccountChanges()
       .subscribe(account => this.account = account);
 
     console.log(this);
@@ -55,8 +55,7 @@ export class AppComponent implements OnInit {
     const {against, amount, bet} = this.newBet;
     this.betTokenService
       .createBet(against, amount, bet)
-      .subscribe();
-    this.newBet = {};
+      .subscribe(() => this.newBet = {});
   }
 
   accept(bet: Bet, accept: boolean): void {
