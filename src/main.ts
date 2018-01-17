@@ -6,6 +6,12 @@ import { environment } from './environments/environment';
 
 if (environment.production) {
   enableProdMode();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/ngsw-worker.js');
+    });
+  }
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule)

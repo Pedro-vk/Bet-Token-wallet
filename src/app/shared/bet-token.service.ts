@@ -23,6 +23,7 @@ import 'rxjs/add/operator/take';
 import { betTokenInterface } from './bet-token.config';
 
 export const BET_TOKEN_ADDRESS = new InjectionToken('BET_TOKEN_ADDRESS');
+export const BET_TOKEN_NETWORK = new InjectionToken('BET_TOKEN_NETWORK');
 
 export interface Token {
   name: string;
@@ -44,7 +45,7 @@ export interface Bet {
   opened: boolean;
 }
 
-export type connectionStatus = 'total' | 'no-account' | 'no-provider';
+export type connectionStatus = 'total' | 'no-account' | 'no-provider' | 'no-network';
 
 @Injectable()
 export class BetTokenService {
@@ -61,12 +62,15 @@ export class BetTokenService {
     return this._connected;
   }
 
-  constructor(@Inject(BET_TOKEN_ADDRESS) private betTokenAddress: string) {
+  constructor(
+    @Inject(BET_TOKEN_ADDRESS) private betTokenAddress: string,
+    @Inject(BET_TOKEN_NETWORK) private betTokenNetwork: string,
+  ) {
     this.initWeb3();
     this.checkData()
       .filter(() => (<any>window).web3 && (<any>window).web3.currentProvider)
       .take(1)
-      .subscribe(() => this.initWeb3);
+      .subscribe(() => this.initWeb3());
     this.connectedChange
       .filter(status => status === 'total')
       .mergeMap(() => this.getAccount())
@@ -76,20 +80,36 @@ export class BetTokenService {
     this.checkData()
       .mergeMap(() => this.getAccount())
       .distinctUntilChanged()
-      .subscribe(account => {
+      .combineLatest(this.isNetwork().startWith(true))
+      .subscribe(([account, isNetwork]) => {
         switch (account) {
           case undefined: this._connected = 'no-provider'; break;
           case '': this._connected = 'no-account'; break;
           default: this._connected = 'total'; break;
+        }
+        if (!isNetwork) {
+          this._connected = 'no-network';
         }
         this._connectedChange.next(this._connected);
       });
   }
 
   private initWeb3(): void {
-    if ((<any>window).web3) {
+    if (!this.web3 && (<any>window).web3) {
       this.web3 = new Web3((<any>window).web3.currentProvider);
     }
+  }
+
+  private getNetwork(): Observable<string> {
+    if (this.web3) {
+      return Observable.fromPromise((<any>this.web3.eth.net).getNetworkType());
+    }
+    return Observable.empty();
+  }
+
+  private isNetwork(): Observable<boolean> {
+    return this.getNetwork()
+      .map(network => network === this.betTokenNetwork);
   }
 
   private getRawContract(): Contract {
@@ -103,11 +123,17 @@ export class BetTokenService {
   }
 
   private getContract(): Observable<Contract> {
-    const contract = this.getRawContract();
-    if (!contract) {
-      return Observable.empty();
-    }
-    return Observable.of(contract);
+    return this.isNetwork()
+      .mergeMap(isNetwork => {
+        if (!isNetwork) {
+          return Observable.empty();
+        }
+        const contract = this.getRawContract();
+        if (!contract) {
+          return Observable.empty();
+        }
+        return Observable.of(contract);
+      });
   }
 
   getAccount(): Observable<string> {

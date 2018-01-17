@@ -1,11 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, Inject } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { NgForm } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import blockies = require('blockies');
 
-import { BetTokenService, Token, Bet, connectionStatus } from './shared';
+import { BetTokenService, Token, Bet, connectionStatus, BET_TOKEN_NETWORK } from './shared';
 
 @Component({
   selector: 'app-root',
@@ -39,7 +39,11 @@ export class AppComponent implements OnInit {
   myBets$: Observable<Bet[]>;
   @ViewChild('newBetForm') newBetForm: NgForm;
 
-  constructor(private betTokenService: BetTokenService, private domSanitizer: DomSanitizer) { }
+  constructor(
+    @Inject(BET_TOKEN_NETWORK) public betTokenNetwork: string,
+    private betTokenService: BetTokenService,
+    private domSanitizer: DomSanitizer,
+  ) { }
 
   ngOnInit(): void {
     this.connected$ = this.betTokenService.connectedChange;

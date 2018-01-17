@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { BetTokenService, BET_TOKEN_ADDRESS } from './bet-token.service';
+import { BetTokenService, BET_TOKEN_ADDRESS, BET_TOKEN_NETWORK } from './bet-token.service';
 
 describe('BetTokenService', () => {
   beforeEach(() => {
@@ -8,6 +8,7 @@ describe('BetTokenService', () => {
       providers: [
         BetTokenService,
         {provide: BET_TOKEN_ADDRESS, useValue: '0x0000000000000000000000000000000000000000'},
+        {provide: BET_TOKEN_NETWORK, useValue: 'rinkeby'},
       ],
     });
   });

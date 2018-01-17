@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
+import { PROVIDERS, BET_TOKEN_ADDRESS, BET_TOKEN_NETWORK } from './shared';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
@@ -32,6 +32,7 @@ describe('AppComponent', () => {
       providers: [
         ...PROVIDERS,
         {provide: BET_TOKEN_ADDRESS, useValue: '0x0000000000000000000000000000000000000000'},
+        {provide: BET_TOKEN_NETWORK, useValue: 'rinkeby'},
       ],
     }).compileComponents();
   }));

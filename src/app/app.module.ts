@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,7 +15,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 
-import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
+import { PROVIDERS, BET_TOKEN_ADDRESS, BET_TOKEN_NETWORK } from './shared';
 
 @NgModule({
   declarations: [
@@ -24,7 +24,7 @@ import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
   imports: [
     BrowserModule,
     FormsModule,
-    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
+    CommonModule,
     AppRoutingModule,
 
     BrowserAnimationsModule,
@@ -39,6 +39,7 @@ import { PROVIDERS, BET_TOKEN_ADDRESS } from './shared';
   providers: [
     ...PROVIDERS,
     {provide: BET_TOKEN_ADDRESS, useValue: '0x8a22124203251412b5242dbDe5838140C1D2a9e3'},
+    {provide: BET_TOKEN_NETWORK, useValue: 'rinkeby'},
   ],
   bootstrap: [AppComponent]
 })

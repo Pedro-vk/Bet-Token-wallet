@@ -1,8 +1,12 @@
 <mat-toolbar [class.visible]="(connected$ | async) === 'total'" class="header header--primary" color="primary">
   <span>{{token?.name}} wallet</span>
-  <span></span>
+  <span>
+    <a href="https://github.com/Pedro-vk/Bet-Token-wallet" target="_blank">
+      <button mat-button color="accent">Check on GitHub</button>
+    </a>
+  </span>
 </mat-toolbar>
-<mat-toolbar class="header header--secondary" color="accent">
+<mat-toolbar [class.visible]="(connected$ | async) === 'total'" class="header header--secondary" color="accent">
   <span>
     <div class="blockie blockie--big" *ngIf="account" [style.background-image]="getImageOf(account)"></div>
     <span class="header__account">{{account}}</span>
@@ -207,6 +211,17 @@
     </div>
     <div class="warning__message">
       Simply open MetaMask and follow the instructions to unlock it.
+    </div>
+  </div>
+</div>
+
+<div class="warning" *ngIf="(connected$ | async) === 'no-network'" @easeInOut>
+  <div class="warning-wrapper">
+    <div class="warning__header">
+      Oops, you’re on the wrong network
+    </div>
+    <div class="warning__message">
+      Simply open MetaMask and switch over to the <strong>{{betTokenNetwork | titlecase}} Ethereum Network</strong>.
     </div>
   </div>
 </div>
