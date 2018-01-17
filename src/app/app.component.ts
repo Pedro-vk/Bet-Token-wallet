@@ -1,8 +1,12 @@
 import { Component, OnInit, ChangeDetectionStrategy, ViewChild, Inject } from '@angular/core';
+import { Http } from '@angular/http';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { NgForm } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/mergeMap';
 import blockies = require('blockies');
 
 import { BetTokenService, Token, Bet, connectionStatus, BET_TOKEN_NETWORK } from './shared';
@@ -28,11 +32,13 @@ import { BetTokenService, Token, Bet, connectionStatus, BET_TOKEN_NETWORK } from
 export class AppComponent implements OnInit {
   newBet: Partial<Bet> = {};
   account: string;
+  network: string;
   openedBet: number = undefined;
   creatingBet: boolean;
   token: Token;
   clickedInstallMetaMask: boolean;
   connected$: Observable<connectionStatus>;
+  ethBalance$: Observable<number>;
   balance$: Observable<number>;
   availableBalance$: Observable<number>;
   debt$: Observable<number>;
@@ -42,11 +48,13 @@ export class AppComponent implements OnInit {
   constructor(
     @Inject(BET_TOKEN_NETWORK) public betTokenNetwork: string,
     private betTokenService: BetTokenService,
+    private http: Http,
     private domSanitizer: DomSanitizer,
   ) { }
 
   ngOnInit(): void {
     this.connected$ = this.betTokenService.connectedChange;
+    this.ethBalance$ = this.betTokenService.getEthBalanceChanges();
     this.balance$ = this.betTokenService.getBalanceChanges();
     this.debt$ = this.betTokenService.getDebtChanges();
     this.myBets$ = this.betTokenService.getMyBetsChanges().map((bets: Bet[] = []) => bets.reverse());
@@ -59,6 +67,25 @@ export class AppComponent implements OnInit {
     this.betTokenService
       .getAccountChanges()
       .subscribe(account => this.account = account);
+
+    this.betTokenService
+      .getEthBalanceChanges()
+      .filter(balance => balance === 0)
+      .mergeMap(() => this.betTokenService.getAccount())
+      .distinctUntilChanged()
+      .mergeMap(account =>
+        this.betTokenService
+          .getNetwork()
+          .filter(network => network === 'ropsten')
+          .map(() => account),
+      )
+      .subscribe(account => this.claimTestEtherOnRopsten(account));
+  }
+
+  claimTestEtherOnRopsten(account: string): void {
+    console.log('Donete to ', account);
+    this.http.get(`http://faucet.ropsten.be:3001/donate/${account}`)
+      .subscribe(() => console.log('Donation done!'));
   }
 
   getImageOf(account: string = ''): SafeStyle {

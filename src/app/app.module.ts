@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -25,9 +26,10 @@ import { PROVIDERS, BET_TOKEN_ADDRESS, BET_TOKEN_NETWORK } from './shared';
     BrowserModule,
     FormsModule,
     CommonModule,
-    AppRoutingModule,
-
+    HttpModule,
     BrowserAnimationsModule,
+
+    AppRoutingModule,
 
     MatButtonModule,
     MatCardModule,

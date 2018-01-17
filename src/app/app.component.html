@@ -70,7 +70,7 @@
             matInput
             name="newBetBet"
             type="text"
-            placeholder="Bet"
+            placeholder="Bet message"
             [(ngModel)]="newBet.bet"
             required>
         </mat-form-field>
@@ -222,6 +222,26 @@
     </div>
     <div class="warning__message">
       Simply open MetaMask and switch over to the <strong>{{betTokenNetwork | titlecase}} Ethereum Network</strong>.
+    </div>
+  </div>
+</div>
+
+<div class="warning" *ngIf="(connected$ | async) === 'no-ether'" @easeInOut>
+  <div class="warning-wrapper">
+    <div class="warning__header">
+      You have not Ether, but...
+    </div>
+    <div class="warning__message" [ngSwitch]="betTokenNetwork">
+      <div *ngSwitchCase="'ropsten'">
+        No problem, we are claiming some free Ether on {{betTokenNetwork | titlecase}} Ethereum Network.<br>
+        Wait some seconds and you will receive it!
+      </div>
+      <div *ngSwitchCase="'rinkeby'">
+        No problem, you can claim some
+        <a class="link" href="https://faucet.rinkeby.io/" target="_blank">free Ether</a>
+        on {{betTokenNetwork | titlecase}} Ethereum Network.
+      </div>
+      The Ether is necessary to make transactions, it's free on testnet.
     </div>
   </div>
 </div>

@@ -45,7 +45,7 @@ export interface Bet {
   opened: boolean;
 }
 
-export type connectionStatus = 'total' | 'no-account' | 'no-provider' | 'no-network';
+export type connectionStatus = 'total' | 'no-account' | 'no-provider' | 'no-network' | 'no-ether';
 
 @Injectable()
 export class BetTokenService {
@@ -80,8 +80,11 @@ export class BetTokenService {
     this.checkData()
       .mergeMap(() => this.getAccount())
       .distinctUntilChanged()
-      .combineLatest(this.isNetwork().startWith(true))
-      .subscribe(([account, isNetwork]) => {
+      .combineLatest(
+        this.isNetwork().startWith(true),
+        this.getEthBalanceChanges().startWith(Infinity),
+      )
+      .subscribe(([account, isNetwork, balance]) => {
         switch (account) {
           case undefined: this._connected = 'no-provider'; break;
           case '': this._connected = 'no-account'; break;
@@ -89,6 +92,8 @@ export class BetTokenService {
         }
         if (!isNetwork) {
           this._connected = 'no-network';
+        } else if (this._connected === 'total' && !balance) {
+          this._connected = 'no-ether';
         }
         this._connectedChange.next(this._connected);
       });
@@ -100,7 +105,7 @@ export class BetTokenService {
     }
   }
 
-  private getNetwork(): Observable<string> {
+  getNetwork(): Observable<string> {
     if (this.web3) {
       return Observable.fromPromise((<any>this.web3.eth.net).getNetworkType());
     }
@@ -143,6 +148,17 @@ export class BetTokenService {
     return Observable
       .fromPromise(this.web3.eth.getAccounts())
       .map(accounts => accounts[0] || '');
+  }
+
+  getEthBalance(): Observable<number> {
+    if (!this.web3) {
+      return Observable.of(undefined);
+    }
+    return this.getAccount()
+      .mergeMap(account =>
+        Observable.fromPromise(this.web3.eth.getBalance(account)),
+      )
+      .map(balance => +this.web3.utils.fromWei(balance, 'ether'));
   }
 
   getToken(): Observable<Token> {
@@ -311,6 +327,12 @@ export class BetTokenService {
   getAccountChanges(): Observable<string> {
     return this.checkData()
       .mergeMap(() => this.getAccount())
+      .distinctUntilChanged();
+  }
+
+  getEthBalanceChanges(): Observable<number> {
+    return this.checkData('bet', 'transaction')
+      .mergeMap(() => this.getEthBalance())
       .distinctUntilChanged();
   }
 
