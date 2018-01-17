@@ -1159,10 +1159,6 @@ xtend@4.0.1
 MIT
 MIT
 
-@angular/service-worker@5.2.0
-MIT
-MIT
-
 scryptsy@1.2.1
 MIT
 MIT
