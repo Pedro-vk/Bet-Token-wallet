@@ -38,8 +38,8 @@ import { PROVIDERS, BET_TOKEN_ADDRESS, BET_TOKEN_NETWORK } from './shared';
   ],
   providers: [
     ...PROVIDERS,
-    {provide: BET_TOKEN_ADDRESS, useValue: '0x8a22124203251412b5242dbDe5838140C1D2a9e3'},
-    {provide: BET_TOKEN_NETWORK, useValue: 'rinkeby'},
+    {provide: BET_TOKEN_ADDRESS, useValue: '0x0de53e55EAb2aCBb84be28A7a3bEAEAc852afFdA'},
+    {provide: BET_TOKEN_NETWORK, useValue: 'ropsten'},
   ],
   bootstrap: [AppComponent]
 })
