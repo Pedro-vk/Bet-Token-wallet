@@ -56,7 +56,7 @@ export class BetTokenService {
   private events: Subject<{event: string, response: any}> = new Subject();
   private web3: Web3;
   private contract: Contract;
-  private defaultTimer: Observable<any> = Observable.interval(2000).startWith(undefined).share();
+  private defaultTimer: Observable<any>;
 
   get connected(): connectionStatus {
     return this._connected;
@@ -67,6 +67,12 @@ export class BetTokenService {
     @Inject(BET_TOKEN_NETWORK) private betTokenNetwork: string,
   ) {
     this.initWeb3();
+    this.defaultTimer = Observable
+      .interval(100)
+      .startWith(undefined)
+      .mergeMap(() => this.getBlockNumber())
+      .distinctUntilChanged()
+      .share();
     this.checkData()
       .filter(() => (<any>window).web3 && (<any>window).web3.currentProvider)
       .take(1)
@@ -103,6 +109,13 @@ export class BetTokenService {
     if (!this.web3 && (<any>window).web3) {
       this.web3 = new Web3((<any>window).web3.currentProvider);
     }
+  }
+
+  getBlockNumber(): Observable<number> {
+    if (this.web3) {
+      return Observable.fromPromise(this.web3.eth.getBlockNumber());
+    }
+    return Observable.empty();
   }
 
   getNetwork(): Observable<string> {
@@ -312,6 +325,11 @@ export class BetTokenService {
     // TODO: wait until MetaMask events support
     const triggers: Observable<any>[] = [];
     triggers.push(this.defaultTimer);
+    triggers.push(
+      Observable.interval(100)
+        .mergeMap(() => this.getAccount())
+        .distinctUntilChanged(),
+    );
     types
       .map(type => {
         switch (type) {
