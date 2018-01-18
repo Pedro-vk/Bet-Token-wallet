@@ -42,10 +42,12 @@ import { BetTokenService, Token, Bet, Transfer, connectionStatus, BET_TOKEN_NETW
 })
 export class AppComponent implements OnInit {
   newBet: Partial<Bet> = {};
+  newTransfer: Partial<{to: string, amount: number}> = {};
   account: string;
   network: string;
   openedBet: number = undefined;
   creatingBet: boolean;
+  creatingTransfer: boolean;
   token: Token;
   clickedInstallMetaMask: boolean;
   connected$: Observable<connectionStatus>;
@@ -57,6 +59,7 @@ export class AppComponent implements OnInit {
   pendingTransactions$: Observable<Transaction[]>;
   transfers$: Observable<Transfer[]>;
   @ViewChild('newBetForm') newBetForm: NgForm;
+  @ViewChild('newTransferForm') newTransferForm: NgForm;
 
   constructor(
     @Inject(BET_TOKEN_NETWORK) public betTokenNetwork: string,
@@ -132,6 +135,24 @@ export class AppComponent implements OnInit {
         },
       );
     this.creatingBet = true;
+  }
+
+  transfer(): void {
+    const {to, amount} = this.newTransfer;
+    this.betTokenService
+      .transfer(to, amount)
+      .subscribe(
+        () => {
+          this.newTransferForm.reset();
+          this.creatingTransfer = false;
+          this.changeDetectorRef.markForCheck();
+        },
+        () => {
+          this.creatingTransfer = false;
+          this.changeDetectorRef.markForCheck();
+        },
+      );
+    this.creatingTransfer = true;
   }
 
   accept(bet: Bet, accept: boolean): void {

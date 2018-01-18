@@ -199,6 +199,7 @@ h2.heading {
   }
 }
 
+.transfer,
 .new-bet {
   @include transition;
 
@@ -251,6 +252,13 @@ h2.heading {
   }
 }
 
+.transfer {
+  &__address,
+  &__amount {
+    width: 100%;
+  }
+}
+
 .transfers {
   mat-expansion-panel-header {
     color: rgba(0, 0, 0, .7);
@@ -263,7 +271,7 @@ h2.heading {
   &__address {
     flex: 1;
     display: flex;
-    max-width: 40%;
+    max-width: 32%;
     line-height: 26px;
 
     &-text {
@@ -279,6 +287,7 @@ h2.heading {
     text-align: center;
     color: rgba(0, 0, 0, .5);
     line-height: 26px;
+    padding-right: 4px;
 
     code {
       color: rgba(0, 0, 0, .87);

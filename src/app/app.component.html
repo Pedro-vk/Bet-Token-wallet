@@ -23,7 +23,9 @@
 </mat-toolbar>
 
 <div class="container" [class.visible]="(connected$ | async) === 'total'">
+
   <div class="container__side">
+
     <mat-card
       @openCloseHeight
       *ngIf="(pendingTransactions$ | async)?.length && (pendingTransactions$ | async) as txs"
@@ -126,6 +128,72 @@
             (click)="createBet()">
 
             Submit bet
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+
+    <form #newTransferForm="ngForm" novalidate class="section transfer" [class.transfer--disabled]="creatingTransfer">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Transfer {{token?.name}}</mat-card-title>
+          <mat-card-subtitle>
+            You can send {{token?.name}} to any Ehtereum address.
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-form-field class="transfer__address" floatPlaceholder="never">
+          <div
+            matPrefix
+            class="blockie blockie--prefix"
+            [style.background-image]="newTransfer.to ? getImageOf(newTransfer.to) : ''">
+          </div>
+          <input
+            matInput
+            [(ngModel)]="newTransfer.to"
+            type="text"
+            name="newTransferAgainst"
+            placeholder="0x0000000000000000000000000000000000000000"
+            required>
+        </mat-form-field>
+
+        <br>
+
+        <mat-form-field class="transfer__amount">
+          <span matSuffix>{{token?.symbol}}</span>
+          <input
+            matInput
+            name="newTransfertAmount"
+            type="number"
+            placeholder="Amount"
+            [(ngModel)]="newTransfer.amount"
+            required
+            [disabled]="(availableBalance$ | async) === 0"
+            min="1"
+            [max]="availableBalance$ | async">
+        </mat-form-field>
+
+        <div class="warn warn--close" *ngIf="(balance$ | async) === 0">
+          <mat-icon>error</mat-icon>
+          You haven't {{token?.name}} but you can
+          <span class="link" (click)="dripToMe()">claim 1 {{token?.symbol}}</span>
+        </div>
+
+        <div class="warn warn--close" *ngIf="(balance$ | async) > 0 && (availableBalance$ | async) === 0">
+          <mat-icon>error</mat-icon>
+          You haven't {{token?.name}} available, get more or close your bets.
+        </div>
+
+        <mat-card-actions>
+          <button mat-button (click)="newTransferForm.reset()" type="button">Clear</button>
+          <button
+            mat-button
+            color="primary"
+            type="button"
+            [disabled]="!newTransferForm.valid && (availableBalance$ | async) !== 0"
+            (click)="transfer()">
+
+            Transfer
           </button>
         </mat-card-actions>
       </mat-card>
@@ -243,7 +311,7 @@
            --><span class="transfers__address-text">{{transfer.from}}</span>
             </div>
             <div class="transfers__amount">
-              sent <code>{{transfer.value}}</code> to
+              sent <code>{{transfer.value}} {{token?.symbol}}</code> to
             </div>
             <div class="transfers__address">
               <div class="blockie" [style.background-image]="getImageOf(transfer.to)">

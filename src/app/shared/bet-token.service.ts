@@ -75,7 +75,6 @@ export class BetTokenService {
     @Inject(BET_TOKEN_NETWORK) private betTokenNetwork: string,
   ) {
     this.initWeb3();
-    console.log(this.web3, this)
     this.defaultTimer$ = Observable
       .interval(100)
       .startWith(undefined)
@@ -93,7 +92,7 @@ export class BetTokenService {
         this.web3.eth.defaultAccount = account;
       });
     this.checkData()
-      .mergeMap(() => this.getAccount())
+      .mergeMap(() => this.getAccount(true))
       .distinctUntilChanged()
       .combineLatest(
         this.isNetwork().startWith(true),
@@ -163,13 +162,14 @@ export class BetTokenService {
       });
   }
 
-  getAccount(): Observable<string> {
+  getAccount(allowNoAccount: boolean = false): Observable<string> {
     if (!this.web3) {
       return Observable.of(undefined);
     }
     return Observable
       .fromPromise(this.web3.eth.getAccounts())
-      .map(accounts => accounts[0] || '');
+      .map(accounts => accounts[0] || '')
+      .filter(account => !!account || allowNoAccount);
   }
 
   getEthBalance(): Observable<number> {
@@ -362,7 +362,7 @@ export class BetTokenService {
       .forEach(event => this.events$.next(event));
   }
 
-  private checkData(...types: ('bet' | 'transaction' | 'send')[]): Observable<any> {
+  private checkData(...types: ('bet' | 'transaction' | 'send' | 'interval' | 'fast-interval')[]): Observable<any> {
     // TODO: wait until MetaMask events support
     const triggers: Observable<any>[] = [];
     triggers.push(this.defaultTimer$);
@@ -428,11 +428,7 @@ export class BetTokenService {
 
   getPendingTransactionsChanges(): Observable<Transaction[]> {
     const hash = (transactions: Transaction[]) => transactions.map(_ => _.hash).sort().join(',');
-    return Observable
-      .merge(
-        this.checkData('send', 'bet', 'transaction'),
-        Observable.interval(3000),
-      )
+    return this.checkData('send', 'bet', 'transaction')
       .mergeMap(() => this.getPendingTransactions())
       .distinctUntilChanged((a, b) => hash(a) === hash(b));
   }
