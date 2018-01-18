@@ -1,6 +1,6 @@
 import { Injectable, InjectionToken, Inject } from '@angular/core';
 import Web3 = require('web3');
-import { Contract } from 'web3/types';
+import { Contract, Transaction } from 'web3/types';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/observable/combineLatest';
@@ -51,12 +51,13 @@ export type connectionStatus = 'total' | 'no-account' | 'no-provider' | 'no-netw
 export class BetTokenService {
   account: string;
   private _connectedChange: Subject<connectionStatus> = new Subject();
-  connectedChange: Observable<connectionStatus> = this._connectedChange.distinctUntilChanged().share();
+  connectedChange$: Observable<connectionStatus> = this._connectedChange.distinctUntilChanged().share();
   private _connected: connectionStatus = undefined;
-  private events: Subject<{event: string, response: any}> = new Subject();
+  private events$: Subject<{event: string, response: any}> = new Subject();
+  private newSend$: Subject<undefined> = new Subject();
+  private defaultTimer$: Observable<any>;
   private web3: Web3;
   private contract: Contract;
-  private defaultTimer: Observable<any>;
 
   get connected(): connectionStatus {
     return this._connected;
@@ -67,7 +68,7 @@ export class BetTokenService {
     @Inject(BET_TOKEN_NETWORK) private betTokenNetwork: string,
   ) {
     this.initWeb3();
-    this.defaultTimer = Observable
+    this.defaultTimer$ = Observable
       .interval(100)
       .startWith(undefined)
       .mergeMap(() => this.getBlockNumber())
@@ -77,7 +78,7 @@ export class BetTokenService {
       .filter(() => (<any>window).web3 && (<any>window).web3.currentProvider)
       .take(1)
       .subscribe(() => this.initWeb3());
-    this.connectedChange
+    this.connectedChange$
       .filter(status => status === 'total')
       .mergeMap(() => this.getAccount())
       .subscribe(account => {
@@ -174,6 +175,14 @@ export class BetTokenService {
       .map(balance => +this.web3.utils.fromWei(balance, 'ether'));
   }
 
+  getPendingTransactions(): Observable<Transaction[]> {
+    return this.getAccount()
+      .mergeMap(account =>
+        Observable.fromPromise(this.web3.eth.getBlock('pending', true))
+          .map(({transactions}) => transactions.filter(transaction => transaction.from === account)),
+      );
+  }
+
   getToken(): Observable<Token> {
     return this.getContract()
       .mergeMap(contract =>
@@ -220,6 +229,7 @@ export class BetTokenService {
   dripToMe(): Observable<any> {
     return this.getAccount()
       .combineLatest(this.getContract())
+      .do(() => this.newSend$.next())
       .mergeMap(([from, contract]) =>
         Observable.fromPromise(contract.methods.dripToMe().send({from})),
       )
@@ -229,6 +239,7 @@ export class BetTokenService {
   transfer(to: string, amount: number): Observable<any> {
     return this.getAccount()
       .combineLatest(this.getContract())
+      .do(() => this.newSend$.next())
       .mergeMap(([from, contract]) =>
         Observable.fromPromise(contract.methods.transfer(to, amount).send({from})),
       )
@@ -238,6 +249,7 @@ export class BetTokenService {
   createBet(against: string, amount: number, bet: string): Observable<any> {
     return this.getAccount()
       .combineLatest(this.getContract())
+      .do(() => this.newSend$.next())
       .mergeMap(([from, contract]) =>
         Observable.fromPromise(contract.methods.bet(against, amount, bet).send({from})),
       )
@@ -247,6 +259,7 @@ export class BetTokenService {
   acceptBet(bet: number, accept: boolean): Observable<any> {
     return this.getAccount()
       .combineLatest(this.getContract())
+      .do(() => this.newSend$.next())
       .mergeMap(([from, contract]) =>
         Observable.fromPromise(contract.methods.acceptBet(bet, accept).send({from})),
       )
@@ -256,6 +269,7 @@ export class BetTokenService {
   cryAndForgotBet(bet: number): Observable<any> {
     return this.getAccount()
       .combineLatest(this.getContract())
+      .do(() => this.newSend$.next())
       .mergeMap(([from, contract]) =>
         Observable.fromPromise(contract.methods.cryAndForgotBet(bet).send({from})),
       )
@@ -265,6 +279,7 @@ export class BetTokenService {
   giveMeTheMoney(bet: number): Observable<any> {
     return this.getAccount()
       .combineLatest(this.getContract())
+      .do(() => this.newSend$.next())
       .mergeMap(([from, contract]) =>
         Observable.fromPromise(contract.methods.giveMeTheMoney(bet).send({from})),
       )
@@ -318,13 +333,13 @@ export class BetTokenService {
   private onEvents(events: {[event: string]: any}): void {
     Object.entries(events)
       .map(([event, response]) => ({event, response}))
-      .forEach(event => this.events.next(event));
+      .forEach(event => this.events$.next(event));
   }
 
-  private checkData(...types: ('bet' | 'transaction')[]): Observable<any> {
+  private checkData(...types: ('bet' | 'transaction' | 'send')[]): Observable<any> {
     // TODO: wait until MetaMask events support
     const triggers: Observable<any>[] = [];
-    triggers.push(this.defaultTimer);
+    triggers.push(this.defaultTimer$);
     triggers.push(
       Observable.interval(100)
         .mergeMap(() => this.getAccount())
@@ -333,8 +348,9 @@ export class BetTokenService {
     types
       .map(type => {
         switch (type) {
-          case 'bet': return this.events.filter(({event}) => event === 'UpdateBet');
-          case 'transaction': return this.events.filter(({event}) => event === 'Transfer');
+          case 'send': return this.newSend$;
+          case 'bet': return this.events$.filter(({event}) => event === 'UpdateBet');
+          case 'transaction': return this.events$.filter(({event}) => event === 'Transfer');
           default: return Observable.empty();
         }
       })
@@ -376,5 +392,16 @@ export class BetTokenService {
     return this.checkData('bet', 'transaction')
       .mergeMap(() => this.getDebt())
       .distinctUntilChanged();
+  }
+
+  getPendingTransactionsChanges(): Observable<Transaction[]> {
+    const hash = (transactions: Transaction[]) => transactions.map(_ => _.hash).sort().join(',');
+    return Observable
+      .merge(
+        this.checkData('send', 'bet', 'transaction'),
+        Observable.interval(3000),
+      )
+      .mergeMap(() => this.getPendingTransactions())
+      .distinctUntilChanged((a, b) => hash(a) === hash(b));
   }
 }

@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.connected$ = this.betTokenService.connectedChange;
+    this.connected$ = this.betTokenService.connectedChange$;
     this.ethBalance$ = this.betTokenService.getEthBalanceChanges();
     this.balance$ = this.betTokenService.getBalanceChanges();
     this.debt$ = this.betTokenService.getDebtChanges();
