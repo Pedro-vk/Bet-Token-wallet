@@ -1,6 +1,6 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
 import { Http } from '@angular/http';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { trigger, transition, style, animate, state } from '@angular/animations';
 import { NgForm } from '@angular/forms';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
@@ -27,7 +27,17 @@ import { BetTokenService, Token, Bet, connectionStatus, BET_TOKEN_NETWORK } from
         style({opacity: 1}),
         animate('.3s ease-in-out', style({opacity: 0})),
       ])
-    ])
+    ]),
+    trigger('openCloseHeight', [
+      state('*', style({marginTop: '*', marginBottom: '*', height: '*'})),
+      transition(':enter', [
+        style({marginTop: 0, marginBottom: 0, height: 0}),
+        animate('.3s ease'),
+      ]),
+      transition(':leave', [
+        animate('.3s ease', style({marginTop: 0, marginBottom: 0, height: 0})),
+      ]),
+    ]),
   ],
 })
 export class AppComponent implements OnInit {
@@ -52,6 +62,7 @@ export class AppComponent implements OnInit {
     private betTokenService: BetTokenService,
     private http: Http,
     private domSanitizer: DomSanitizer,
+    private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -111,8 +122,12 @@ export class AppComponent implements OnInit {
         () => {
           this.newBetForm.reset();
           this.creatingBet = false;
+          this.changeDetectorRef.markForCheck();
         },
-        () => this.creatingBet = false,
+        () => {
+          this.creatingBet = false;
+          this.changeDetectorRef.markForCheck();
+        },
       );
     this.creatingBet = true;
   }
