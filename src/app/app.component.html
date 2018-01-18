@@ -76,6 +76,16 @@
         </mat-form-field>
       </div>
 
+      <div class="warn warn--close" *ngIf="(balance$ | async) === 0">
+        <mat-icon>error</mat-icon>
+        You haven't {{token?.name}} but you can
+        <span class="link" (click)="dripToMe()">claim 1 {{token?.symbol}}</span>
+      </div>
+
+      <div class="warn warn--close" *ngIf="(balance$ | async) > 0 && (availableBalance$ | async) === 0">
+        <mat-icon>error</mat-icon>
+        You haven't {{token?.name}} available, get more or close your bets.
+      </div>
 
       <mat-card-actions>
         <button mat-button (click)="newBetForm.reset()" type="button">Clear</button>
@@ -134,8 +144,15 @@
      --><span class="bets-list__address-text">{{bet.against}}</span>
       </div>
 
-
       <mat-action-row>
+        <div
+          class="warn warn--align-right"
+          *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted && (availableBalance$ | async) < bet.amount">
+
+          Not enought {{token?.name}} available
+          <mat-icon>error</mat-icon>
+        </div>
+
         <button mat-button
           *ngIf="bet.against.toLowerCase() === account.toLowerCase() && !bet.accepted"
           color="primary"

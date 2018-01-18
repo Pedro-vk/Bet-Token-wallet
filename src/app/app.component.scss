@@ -283,6 +283,29 @@ $header--secondary---height: 48px !default;
   }
 }
 
+.warn {
+  font-size: 14px;
+  padding: 10px 0;
+  color: #444444;
+
+  &--close {
+    padding-top: 4px;
+  }
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  &--align-right mat-icon {
+    margin-left: 4px;
+    margin-right: 0;
+    text-align: right;
+  }
+}
+
 .warning {
   position: fixed;
   top: 0;
