@@ -34,7 +34,7 @@ contract BetsToken is Token {
   string public symbol;
   uint8 public decimals;
   uint256 public totalSupply;
-  string public version = '1.1';
+  string public version = '1.2';
 
   address public owner;
 
@@ -118,6 +118,7 @@ contract BetsToken is Token {
   function bet(address _against, uint256 _amount, string _bet) public {
     require(_against != msg.sender);
     require(availableBalanceOf(msg.sender) >= _amount);
+    require(_amount > 0);
     uint id = betsSize();
     bets.push(Bet({
       id: id,
