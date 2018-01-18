@@ -27,7 +27,7 @@
     <mat-card
       @openCloseHeight
       *ngIf="(pendingTransactions$ | async)?.length && (pendingTransactions$ | async) as txs"
-      class="pending">
+      class="section pending">
 
       <mat-card-header>
         <mat-card-title>Pending transactions</mat-card-title>
@@ -52,7 +52,7 @@
       </mat-chip-list>
     </mat-card>
 
-    <form #newBetForm="ngForm" novalidate class="new-bet" [class.new-bet--disabled]="creatingBet">
+    <form #newBetForm="ngForm" novalidate class="section new-bet" [class.new-bet--disabled]="creatingBet">
       <mat-card>
         <mat-card-header>
           <mat-card-title>New bet</mat-card-title>
@@ -130,10 +130,14 @@
         </mat-card-actions>
       </mat-card>
     </form>
+
   </div>
 
   <div class="container__side">
-    <mat-accordion class="bets-list">
+
+    <h2 class="heading" *ngIf="(myBets$ | async)?.length">Active bets</h2>
+
+    <mat-accordion class="section bets-list">
       <mat-expansion-panel
         *ngFor="let bet of myBets$ | async; trackBy: trackBet"
         class="bets-list__bet"
@@ -218,6 +222,38 @@
             Cry and forgot the bet
           </button>
         </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <h2 class="heading" *ngIf="(transfers$ | async)?.length">Transfers</h2>
+
+    <mat-accordion class="section transfers">
+      <mat-expansion-panel
+        *ngFor="let transfer of transfers$ | async; trackBy: trackTransfer"
+        [disabled]="true"
+        [hideToggle]="true">
+
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+
+            <div class="transfers__address">
+              <div class="blockie" [style.background-image]="getImageOf(transfer.from)">
+                <mat-icon *ngIf="transfer.from === account">account_circle</mat-icon>
+              </div><!--
+           --><span class="transfers__address-text">{{transfer.from}}</span>
+            </div>
+            <div class="transfers__amount">
+              sent <code>{{transfer.value}}</code> to
+            </div>
+            <div class="transfers__address">
+              <div class="blockie" [style.background-image]="getImageOf(transfer.to)">
+                <mat-icon *ngIf="transfer.to === account">account_circle</mat-icon>
+              </div><!--
+           --><span class="transfers__address-text">{{transfer.to}}</span>
+            </div>
+
+          </mat-panel-title>
+        </mat-expansion-panel-header>
       </mat-expansion-panel>
     </mat-accordion>
   </div>

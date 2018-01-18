@@ -34,6 +34,13 @@ export interface Token {
   totalSupply: number;
 }
 
+export interface Transfer {
+  tx: string;
+  from: string;
+  to: string;
+  value: number;
+}
+
 export interface Bet {
   id?: number;
   from: string;
@@ -68,6 +75,7 @@ export class BetTokenService {
     @Inject(BET_TOKEN_NETWORK) private betTokenNetwork: string,
   ) {
     this.initWeb3();
+    console.log(this.web3, this)
     this.defaultTimer$ = Observable
       .interval(100)
       .startWith(undefined)
@@ -224,6 +232,24 @@ export class BetTokenService {
         Observable.fromPromise(contract.methods.debtOf(account).call()),
       )
       .map(number => +number);
+  }
+
+  getMyTransfers(): Observable<Transfer[]> {
+    return this.getAccount()
+      .combineLatest(this.getContract())
+      .mergeMap(([account, contract]) =>
+        Observable.fromPromise(contract.getPastEvents('Transfer', {fromBlock: 0, toBlock: 'latest'}))
+          .map(transfers =>
+            transfers
+              .map(({transactionHash, returnValues}) => ({
+                tx: transactionHash,
+                from: String((<any>returnValues)._from),
+                to: String((<any>returnValues)._to),
+                value: +(<any>returnValues)._value,
+              }))
+              .filter(({from, to}) => from === account || to === account),
+          ),
+      );
   }
 
   dripToMe(): Observable<any> {
@@ -392,6 +418,12 @@ export class BetTokenService {
     return this.checkData('bet', 'transaction')
       .mergeMap(() => this.getDebt())
       .distinctUntilChanged();
+  }
+
+  getMyTransfersChanges(): Observable<Transfer[]> {
+    return this.checkData()
+      .mergeMap(() => this.getMyTransfers())
+      .distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b));
   }
 
   getPendingTransactionsChanges(): Observable<Transaction[]> {

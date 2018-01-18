@@ -96,6 +96,7 @@ $header--secondary---height: 48px !default;
   display: inline-block;
   height: $size;
   width: $size;
+  min-width: $size;
   vertical-align: middle;
   position: relative;
   background-image: linear-gradient(120deg, #2af598 0%, #009efd 100%);
@@ -104,6 +105,7 @@ $header--secondary---height: 48px !default;
     border-radius: $size-big / 2;
     height: $size-big;
     width: $size-big;
+    min-width: $size-big;
     top: 0;
     margin: 0;
     box-shadow: inset 0 -1px 1px 1px rgba(0, 0, 0, .2);
@@ -114,6 +116,7 @@ $header--secondary---height: 48px !default;
     border-radius: $size-prefix / 2;
     height: $size-prefix;
     width: $size-prefix;
+    min-width: $size-prefix;
   }
 
   mat-icon {
@@ -141,13 +144,21 @@ $header--secondary---height: 48px !default;
   }
 }
 
-.pending,
-.bets-list,
-.new-bet {
+.heading,
+.section {
   max-width: 560px;
   margin: 40px auto;
   display: block;
   box-sizing: border-box;
+
+}
+h2.heading {
+  margin: 40px auto 20px;
+  font-weight: normal;
+
+  & + .section {
+    margin-top: 0;
+  }
 }
 
 .pending {
@@ -236,6 +247,41 @@ $header--secondary---height: 48px !default;
     }
     /deep/ .mat-input-suffix {
       transform: translateY(1px);
+    }
+  }
+}
+
+.transfers {
+  mat-expansion-panel-header {
+    color: rgba(0, 0, 0, .7);
+  }
+  mat-panel-title {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  &__address {
+    flex: 1;
+    display: flex;
+    max-width: 40%;
+    line-height: 26px;
+
+    &-text {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      padding-left: 14px;
+      font-family: 'Roboto Mono', monospace;
+    }
+  }
+  &__amount {
+    flex: 1;
+    text-align: center;
+    color: rgba(0, 0, 0, .5);
+    line-height: 26px;
+
+    code {
+      color: rgba(0, 0, 0, .87);
     }
   }
 }
