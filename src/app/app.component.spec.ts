@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -23,6 +24,7 @@ describe('AppComponent', () => {
         NoopAnimationsModule,
         MatButtonModule,
         MatCardModule,
+        MatChipsModule,
         MatExpansionModule,
         MatIconModule,
         MatInputModule,

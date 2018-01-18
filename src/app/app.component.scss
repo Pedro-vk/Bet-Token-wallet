@@ -130,12 +130,49 @@ $header--secondary---height: 48px !default;
   }
 }
 
+.pending,
 .bets-list,
 .new-bet {
   max-width: 560px;
   margin: 40px auto;
   display: block;
   box-sizing: border-box;
+}
+
+.pending {
+  mat-chip-list {
+    margin: 0 -8px -8px;
+    display: block;
+  }
+  mat-chip {
+    margin: 0px !important;
+    box-shadow: none !important;
+  }
+  &__tx {
+    display: inline-block;
+    margin: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+
+    &-overlay {
+      border-radius: 24px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+  &__hash {
+    font-size: 16px;
+    width: 104px;
+    margin-right: 8px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .new-bet {

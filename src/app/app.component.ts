@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/mergeMap';
+import { Transaction } from 'web3/types';
 import blockies = require('blockies');
 
 import { BetTokenService, Token, Bet, connectionStatus, BET_TOKEN_NETWORK } from './shared';
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit {
   availableBalance$: Observable<number>;
   debt$: Observable<number>;
   myBets$: Observable<Bet[]>;
+  pendingTransactions$: Observable<Transaction[]>;
   @ViewChild('newBetForm') newBetForm: NgForm;
 
   constructor(
@@ -59,6 +61,7 @@ export class AppComponent implements OnInit {
     this.debt$ = this.betTokenService.getDebtChanges();
     this.myBets$ = this.betTokenService.getMyBetsChanges().map((bets: Bet[] = []) => bets.reverse());
     this.availableBalance$ = this.betTokenService.getAvailableBalanceChanges();
+    this.pendingTransactions$ = this.betTokenService.getPendingTransactionsChanges();
 
     this.betTokenService
       .getToken()
@@ -132,6 +135,10 @@ export class AppComponent implements OnInit {
 
   trackBet(index: number, bet: Bet): string {
     return String(bet.id) || '';
+  }
+
+  trackTransaction(index: number, tx: Transaction): string {
+    return String(tx.hash) || '';
   }
 
   reload(): void {

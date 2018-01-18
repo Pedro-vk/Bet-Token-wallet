@@ -23,8 +23,32 @@
 </mat-toolbar>
 
 <div class="container" [class.visible]="(connected$ | async) === 'total'">
-  <form #newBetForm="ngForm" novalidate>
-    <mat-card class="new-bet" [class.new-bet--disabled]="creatingBet">
+  <mat-card class="pending" *ngIf="(pendingTransactions$ | async)?.length && (pendingTransactions$ | async) as txs">
+    <mat-card-header>
+      <mat-card-title>Pending transactions</mat-card-title>
+      <mat-card-subtitle>
+        You can check the transactions status on Etherscan.
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-chip-list>
+      <a
+        *ngFor="let tx of txs; trackBy: trackTransaction"
+        class="pending__tx"
+        target="_blank"
+        href="https://ropsten.etherscan.io/tx/{{tx.hash}}">
+
+        <mat-chip>
+          <code class="pending__hash">{{tx.hash}}</code>
+          <mat-icon>open_in_new</mat-icon>
+        </mat-chip>
+        <div class="pending__tx-overlay"></div>
+      </a>
+    </mat-chip-list>
+  </mat-card>
+
+  <form #newBetForm="ngForm" novalidate class="new-bet" [class.new-bet--disabled]="creatingBet">
+    <mat-card>
       <mat-card-header>
         <mat-card-title>New bet</mat-card-title>
         <mat-card-subtitle>
