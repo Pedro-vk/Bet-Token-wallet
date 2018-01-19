@@ -102,12 +102,15 @@ export class BetTokenService {
         switch (account) {
           case undefined: this._connected = 'no-provider'; break;
           case '': this._connected = 'no-account'; break;
-          default: this._connected = 'total'; break;
-        }
-        if (!isNetwork) {
-          this._connected = 'no-network';
-        } else if (this._connected === 'total' && !balance) {
-          this._connected = 'no-ether';
+          default: {
+            this._connected = 'total';
+            if (!balance) {
+              this._connected = 'no-ether';
+            }
+            if (!isNetwork) {
+              this._connected = 'no-network';
+            }
+          }
         }
         this._connectedChange.next(this._connected);
       });

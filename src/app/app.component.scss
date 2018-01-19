@@ -99,7 +99,7 @@ $header--secondary---height: 48px !default;
   min-width: $size;
   vertical-align: middle;
   position: relative;
-  background-image: linear-gradient(120deg, #2af598 0%, #009efd 100%);
+  background-image: linear-gradient(120deg, #0a3518 0%, #002e2d 100%);
 
   &--big {
     border-radius: $size-big / 2;
@@ -111,12 +111,20 @@ $header--secondary---height: 48px !default;
     box-shadow: inset 0 -1px 1px 1px rgba(0, 0, 0, .2);
   }
   &--prefix {
+    @include transition;
+
     margin-right: 12px;
     margin-bottom: 4px;
     border-radius: $size-prefix / 2;
     height: $size-prefix;
     width: $size-prefix;
     min-width: $size-prefix;
+  }
+  &--hidden {
+    margin-right: 0;
+    height: 0;
+    width: 0;
+    min-width: 0;
   }
 
   mat-icon {
@@ -445,5 +453,13 @@ h2.heading {
     display: block;
     margin: auto;
     border: 0;
+  }
+
+  img {
+    margin-top: 40px;
+    order: 1px solid rgba(0, 0, 0, 0.15);
+    padding-top: 2px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
   }
 }

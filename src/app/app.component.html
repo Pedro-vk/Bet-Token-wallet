@@ -64,10 +64,11 @@
           </mat-card-subtitle>
         </mat-card-header>
 
-        <mat-form-field class="new-bet__address" floatPlaceholder="never">
+        <mat-form-field class="new-bet__address">
           <div
             matPrefix
             class="blockie blockie--prefix"
+            [class.blockie--hidden]="!newBet.against"
             [style.background-image]="newBet.against ? getImageOf(newBet.against) : ''">
           </div>
           <input
@@ -75,7 +76,7 @@
             [(ngModel)]="newBet.against"
             type="text"
             name="newBetAgainst"
-            placeholder="0x0000000000000000000000000000000000000000"
+            placeholder="Bet against to (0x...)"
             required>
         </mat-form-field>
 
@@ -142,10 +143,11 @@
           </mat-card-subtitle>
         </mat-card-header>
 
-        <mat-form-field class="transfer__address" floatPlaceholder="never">
+        <mat-form-field class="transfer__address">
           <div
             matPrefix
             class="blockie blockie--prefix"
+            [class.blockie--hidden]="!newTransfer.to"
             [style.background-image]="newTransfer.to ? getImageOf(newTransfer.to) : ''">
           </div>
           <input
@@ -153,7 +155,7 @@
             [(ngModel)]="newTransfer.to"
             type="text"
             name="newTransferAgainst"
-            placeholder="0x0000000000000000000000000000000000000000"
+            placeholder="Transfer to (0x...)"
             required>
         </mat-form-field>
 
@@ -376,6 +378,7 @@
     <div class="warning__message">
       Simply open MetaMask and switch over to the <strong>{{betTokenNetwork | titlecase}} Ethereum Network</strong>.
     </div>
+    <img src="assets/metamask-network.png">
   </div>
 </div>
 
@@ -386,7 +389,7 @@
     </div>
     <div class="warning__message" [ngSwitch]="betTokenNetwork">
       <div *ngSwitchCase="'ropsten'">
-        No problem, we are claiming some free Ether on {{betTokenNetwork | titlecase}} Ethereum Network.<br>
+        No problem, <strong>we are claiming some free Ether</strong> on {{betTokenNetwork | titlecase}} Ethereum Network.<br>
         Wait some seconds and you will receive it!
       </div>
       <div *ngSwitchCase="'rinkeby'">
