@@ -9,8 +9,8 @@
       "urls": [
         "/favicon.ico",
         "/index.html",
-        "/inline.018d55bea723b4c2473b.bundle.js",
-        "/main.e6947ed9073e24e482c1.bundle.js",
+        "/inline.bf5774c581943ac9386f.bundle.js",
+        "/main.162e25b9ccd06d37714c.bundle.js",
         "/polyfills.486a8dcfb7a22be09ea9.bundle.js",
         "/styles.28b1def8dff2d136c339.bundle.css"
       ],
@@ -28,12 +28,12 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "/inline.018d55bea723b4c2473b.bundle.js": "f7e37b7a17ac7679d5bf6d2125c35ce4610732ed",
+    "/inline.bf5774c581943ac9386f.bundle.js": "46894c916b5730184aadf8a3e9749f341b721093",
     "/assets/metamask-network.png": "346eccebaca4fc2dfdfc024b1413f9a860c92ab6",
-    "/main.e6947ed9073e24e482c1.bundle.js": "e6ebc9a8f67b28a3628188668a60f7c0df577b6f",
+    "/main.162e25b9ccd06d37714c.bundle.js": "5e466c984c12bf756b0eba26594bbc8eb4a8bf26",
     "/polyfills.486a8dcfb7a22be09ea9.bundle.js": "9d6e3abd3d17d64718f78af0dcb54e2f893915a0",
     "/styles.28b1def8dff2d136c339.bundle.css": "3ae264f5f408cb469cac81843714d45ced36ca1d",
     "/favicon.ico": "84161b857f5c547e3699ddfbffc6d8d737542e01",
-    "/index.html": "31a2fe35deccdff13cd66a65f0572a24d5851f16"
+    "/index.html": "580380946b07b2abde113dcab1f5467521a78888"
   }
 }
