@@ -42,7 +42,7 @@ import { PROVIDERS, BET_TOKEN_ADDRESS, BET_TOKEN_NETWORK } from './shared';
   ],
   providers: [
     ...PROVIDERS,
-    {provide: BET_TOKEN_ADDRESS, useValue: '0x0de53e55EAb2aCBb84be28A7a3bEAEAc852afFdA'},
+    {provide: BET_TOKEN_ADDRESS, useValue: '0x247c0fA44eD6ee429DB25bf6C31c7168F170d519'},
     {provide: BET_TOKEN_NETWORK, useValue: 'ropsten'},
   ],
   bootstrap: [AppComponent]
