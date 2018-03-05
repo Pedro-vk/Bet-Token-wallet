@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
 
   claimTestEtherOnRopsten(account: string): void {
     console.log('Donete to ', account);
-    this.http.get(`http://faucet.ropsten.be:3001/donate/${account}`)
+    this.http.post('https://faucet.metamask.io', account)
       .subscribe(() => console.log('Donation done!'));
   }
 
